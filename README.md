@@ -1,4 +1,6 @@
-# Real Time Stock Market App
+ ![alt text](sot_1.jpg)
+ ![alt text](shot_2.jpg)
+ # Real Time Stock Market App
 
 ## Introduction
 
