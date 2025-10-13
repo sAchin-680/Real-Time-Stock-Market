@@ -1,0 +1,68 @@
+name: Deploy to Vercel with GitHub Actions
+
+on:
+  push:
+    branches:
+      - main  # Trigger when changes are pushed to the main branch
+  pull_request:
+    branches:
+      - main  # Trigger for pull requests targeting the main branch
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Linter
+        run: npm run lint  # Replace with your linter command
+
+      - name: Notify Vercel about Lint Check
+        uses: vercel/repository-dispatch/actions/status@v1
+        with:
+          name: Vercel - real-time-stock-market: lint
+          status: ${{ job.status }}  # Can be "success" or "failure"
+          context: "lint"
+  
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Tests
+        run: npm test  # Replace with your testing command
+
+      - name: Notify Vercel about Test Check
+        uses: vercel/repository-dispatch/actions/status@v1
+        with:
+          name: Vercel - real-time-stock-market: test
+          status: ${{ job.status }}  # Can be "success" or "failure"
+          context: "test"
+
+  deploy:
+    needs: [lint, test]  # Make sure lint and test jobs pass before deploying
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Deploy to Vercel
+        run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }}  # Replace with your Vercel deployment command
+
+      - name: Notify Vercel about Deployment Status
+        uses: vercel/repository-dispatch/actions/status@v1
+        with:
+          name: Vercel - real-time-stock-market: deploy
+          status: ${{ job.status }}  # Can be "success" or "failure"
+          context: "deploy"
