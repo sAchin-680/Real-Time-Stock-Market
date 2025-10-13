@@ -13,26 +13,21 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import NavItems from "@/components/NavItems";
-import { Sign } from "crypto";
+import { signOut } from "@/lib/actions/auth.actions";
 
-type User = {
-  name?: string;
-  email?: string;
-};
-
-const UserDropdown = ({ user }: { user?: User }) => {
+const UserDropdown = ({
+  user,
+  initialStocks,
+}: {
+  user: User;
+  initialStocks: StockWithWatchlistStatus[];
+}) => {
   const router = useRouter();
 
   const handleSignOut = async () => {
-    await fetch("/api/auth/sign-out", {
-      method: "POST",
-    });
-
+    await signOut();
     router.push("/sign-in");
   };
-
-  // Use empty user object if user is undefined to avoid errors
-  const safeUser = user || {};
 
   return (
     <DropdownMenu>
@@ -42,14 +37,14 @@ const UserDropdown = ({ user }: { user?: User }) => {
           className="flex items-center gap-3 text-gray-4 hover:text-yellow-500"
         >
           <Avatar className="h-8 w-8">
-            <AvatarImage src="https://static.vecteezy.com/system/resources/thumbnails/066/178/824/small_2x/a-vibrant-neon-user-icon-glows-brightly-against-a-black-backdrop-ideal-for-digital-interfaces-video.jpg" />
+            <AvatarImage src="https://cdn-icons-png.flaticon.com/128/456/456212.png" />
             <AvatarFallback className="bg-yellow-500 text-yellow-900 text-sm font-bold">
-              {safeUser.name?.[0] || "U"}
+              {user.name[0]}
             </AvatarFallback>
           </Avatar>
           <div className="hidden md:flex flex-col items-start">
             <span className="text-base font-medium text-gray-400">
-              {safeUser.name || "User"}
+              {user.name}
             </span>
           </div>
         </Button>
@@ -58,18 +53,16 @@ const UserDropdown = ({ user }: { user?: User }) => {
         <DropdownMenuLabel>
           <div className="flex relative items-center gap-3 py-2">
             <Avatar className="h-10 w-10">
-              <AvatarImage src="https://static.vecteezy.com/system/resources/thumbnails/066/178/824/small_2x/a-vibrant-neon-user-icon-glows-brightly-against-a-black-backdrop-ideal-for-digital-interfaces-video.jpg" />
+              <AvatarImage src="https://cdn-icons-png.flaticon.com/128/456/456212.png" />
               <AvatarFallback className="bg-yellow-500 text-yellow-900 text-sm font-bold">
-                {safeUser.name?.[0] || "U"}
+                {user.name[0]}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
               <span className="text-base font-medium text-gray-400">
-                {safeUser.name || "User"}
+                {user.name}
               </span>
-              <span className="text-sm text-gray-500">
-                {safeUser.email || ""}
-              </span>
+              <span className="text-sm text-gray-500">{user.email}</span>
             </div>
           </div>
         </DropdownMenuLabel>
@@ -83,11 +76,10 @@ const UserDropdown = ({ user }: { user?: User }) => {
         </DropdownMenuItem>
         <DropdownMenuSeparator className="hidden sm:block bg-gray-600" />
         <nav className="sm:hidden">
-          <NavItems />
+          <NavItems initialStocks={initialStocks} />
         </nav>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
-
 export default UserDropdown;
