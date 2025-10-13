@@ -13,15 +13,26 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import NavItems from "@/components/NavItems";
+import { Sign } from "crypto";
 
-const UserDropdown = () => {
+type User = {
+  name?: string;
+  email?: string;
+};
+
+const UserDropdown = ({ user }: { user?: User }) => {
   const router = useRouter();
 
   const handleSignOut = async () => {
+    await fetch("/api/auth/sign-out", {
+      method: "POST",
+    });
+
     router.push("/sign-in");
   };
 
-  const user = { name: "sachin", email: "abc@gmail.com" };
+  // Use empty user object if user is undefined to avoid errors
+  const safeUser = user || {};
 
   return (
     <DropdownMenu>
@@ -33,12 +44,12 @@ const UserDropdown = () => {
           <Avatar className="h-8 w-8">
             <AvatarImage src="https://static.vecteezy.com/system/resources/thumbnails/066/178/824/small_2x/a-vibrant-neon-user-icon-glows-brightly-against-a-black-backdrop-ideal-for-digital-interfaces-video.jpg" />
             <AvatarFallback className="bg-yellow-500 text-yellow-900 text-sm font-bold">
-              {user.name?.[0] || "U"}
+              {safeUser.name?.[0] || "U"}
             </AvatarFallback>
           </Avatar>
           <div className="hidden md:flex flex-col items-start">
             <span className="text-base font-medium text-gray-400">
-              {user.name}
+              {safeUser.name || "User"}
             </span>
           </div>
         </Button>
@@ -49,14 +60,16 @@ const UserDropdown = () => {
             <Avatar className="h-10 w-10">
               <AvatarImage src="https://static.vecteezy.com/system/resources/thumbnails/066/178/824/small_2x/a-vibrant-neon-user-icon-glows-brightly-against-a-black-backdrop-ideal-for-digital-interfaces-video.jpg" />
               <AvatarFallback className="bg-yellow-500 text-yellow-900 text-sm font-bold">
-                {user.name?.[0] || "U"}
+                {safeUser.name?.[0] || "U"}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
               <span className="text-base font-medium text-gray-400">
-                {user.name}
+                {safeUser.name || "User"}
               </span>
-              <span className="text-sm text-gray-500">{user.email}</span>
+              <span className="text-sm text-gray-500">
+                {safeUser.email || ""}
+              </span>
             </div>
           </div>
         </DropdownMenuLabel>
@@ -76,4 +89,5 @@ const UserDropdown = () => {
     </DropdownMenu>
   );
 };
+
 export default UserDropdown;
