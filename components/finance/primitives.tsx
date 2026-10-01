@@ -99,7 +99,7 @@ export function SymbolCell({ symbol, name, logo }: { symbol: string; name?: stri
       <StockLogo symbol={symbol} logo={logo} />
       <span className="min-w-0">
         <span className="block font-semibold text-gray-100 group-hover:text-yellow-400">{symbol}</span>
-        {name && <span className="block max-w-[180px] truncate text-xs text-gray-500">{name}</span>}
+        {name && name !== symbol && <span className="block max-w-[180px] truncate text-xs text-gray-500">{name}</span>}
       </span>
     </Link>
   );
