@@ -18,7 +18,7 @@ export function Logo({ size = 24, className, compact = false }: { size?: number;
       <LogoMark size={size} />
       {!compact && (
         <span className="text-[15px] font-semibold tracking-tight text-gray-100">
-          Tick<span className="text-amber">line</span>
+          Tickline
         </span>
       )}
     </span>

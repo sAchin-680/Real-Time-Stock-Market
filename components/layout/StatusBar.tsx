@@ -46,7 +46,7 @@ export default function StatusBar() {
       <span className="ml-auto flex items-center gap-3">
         {KEYS.map(([k, label]) => (
           <span key={label} className="inline-flex items-center gap-1">
-            <kbd className="num rounded-sm bg-gray-700 px-1 text-[10px] font-semibold text-amber">{k}</kbd>
+            <kbd className="num rounded-sm bg-gray-700 px-1 text-[10px] font-semibold text-gray-100">{k}</kbd>
             {label}
           </span>
         ))}

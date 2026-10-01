@@ -23,7 +23,7 @@ const Header = async ({ user }: { user: User }) => {
         <Link href="/" className="shrink-0" aria-label="Tickline home">
           <Logo size={22} className="lg:hidden" />
           <span className="hidden text-[15px] font-semibold tracking-tight text-gray-100 lg:inline">
-            Tick<span className="text-amber">line</span>
+            Tick<span className="text-gray-100">line</span>
           </span>
         </Link>
 
@@ -36,7 +36,7 @@ const Header = async ({ user }: { user: User }) => {
         <TradeDialog
           listenForShortcut
           trigger={
-            <Button size="sm" className="h-8 rounded-md bg-amber px-3 font-semibold text-gray-950 hover:bg-yellow-500" title="New trade (T)">
+            <Button size="sm" className="h-8 rounded-md btn-primary px-3" title="New trade (T)">
               <Plus /> <span className="hidden sm:inline">Trade</span>
             </Button>
           }

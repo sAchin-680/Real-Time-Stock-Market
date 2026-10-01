@@ -57,8 +57,8 @@ export default function ImportCsvDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <label className="flex cursor-pointer flex-col items-center gap-2 rounded-lg border border-dashed border-gray-600 bg-gray-900 px-4 py-6 text-sm text-gray-500 hover:border-yellow-500/60">
-          <FileUp className="size-5 text-yellow-400" />
+        <label className="flex cursor-pointer flex-col items-center gap-2 rounded-lg border border-dashed border-gray-600 bg-gray-900 px-4 py-6 text-sm text-gray-500 hover:border-gray-500">
+          <FileUp className="size-5 text-gray-100" />
           <span>Choose a .csv file or paste below</span>
           <input type="file" accept=".csv,text/csv" className="sr-only" onChange={(e) => onFile(e.target.files?.[0])} />
         </label>
@@ -82,7 +82,7 @@ export default function ImportCsvDialog() {
           </button>
           <div className="flex gap-2">
             <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button disabled={!text.trim() || pending} onClick={submit} className="bg-yellow-400 text-gray-900 hover:bg-yellow-500">
+            <Button disabled={!text.trim() || pending} onClick={submit} className="btn-primary">
               {pending && <Loader2 className="animate-spin" />} Import
             </Button>
           </div>

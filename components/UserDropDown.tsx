@@ -33,7 +33,7 @@ const UserDropdown = ({ user }: { user: User }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className="flex size-8 shrink-0 items-center justify-center rounded-md border border-gray-600 bg-gray-700 text-[11px] font-semibold text-gray-100 transition-colors hover:border-amber/60"
+        className="flex size-8 shrink-0 items-center justify-center rounded-md border border-gray-600 bg-gray-700 text-[11px] font-semibold text-gray-100 transition-colors hover:border-gray-500"
         aria-label="Account menu"
       >
         {initials(user.name)}

@@ -104,7 +104,7 @@ export default function CommandBar({
         className="group flex h-9 w-9 items-center gap-2 rounded-md border border-gray-600 bg-gray-950 text-[13px] text-gray-500 transition-colors hover:border-gray-500 sm:w-full sm:max-w-xl sm:px-3"
         aria-label="Open command bar"
       >
-        <ChevronRight className="mx-auto size-4 text-amber sm:mx-0" />
+        <ChevronRight className="mx-auto size-4 text-gray-100 sm:mx-0" />
         <span className="hidden flex-1 truncate text-left sm:inline">
           Ticker or command — <span className="num text-gray-400">AAPL</span>, <span className="num text-gray-400">PORT</span>, <span className="num text-gray-400">WL</span>
         </span>
@@ -122,7 +122,7 @@ export default function CommandBar({
           {directTicker && (
             <CommandGroup heading="Go">
               <CommandItem value={`go-${upper}`} onSelect={() => go(`/stocks/${encodeURIComponent(upper)}`)} className="cmd-item">
-                <ArrowRight className="size-4 text-amber" />
+                <ArrowRight className="size-4 text-gray-100" />
                 <span className="num font-semibold text-gray-100">{upper}</span>
                 <span className="text-gray-500">open security</span>
                 <kbd className="num ml-auto text-[10px] text-gray-500">GO ⏎</kbd>
@@ -137,7 +137,7 @@ export default function CommandBar({
                 return (
                   <CommandItem key={c.code} value={`nav-${c.code}`} onSelect={() => go(c.href)} className="cmd-item">
                     <Icon className="size-4 text-gray-500" />
-                    <span className="num w-12 font-semibold text-amber">{c.code}</span>
+                    <span className="num w-12 font-semibold text-gray-100">{c.code}</span>
                     <span className="text-gray-100">{c.label}</span>
                     <kbd className="num ml-auto text-[10px] text-gray-500">G {c.key}</kbd>
                   </CommandItem>
@@ -154,7 +154,7 @@ export default function CommandBar({
                   className="cmd-item"
                 >
                   <a.icon className="size-4 text-gray-500" />
-                  <span className="num w-12 font-semibold text-amber">{a.code}</span>
+                  <span className="num w-12 font-semibold text-gray-100">{a.code}</span>
                   <span className="text-gray-100">{a.label}</span>
                 </CommandItem>
               ))}

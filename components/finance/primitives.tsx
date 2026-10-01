@@ -26,7 +26,7 @@ export function Panel({
         <header className="panel-header">
           {title ? (
             <h2 className="panel-title">
-              {code && <span className="num rounded-sm bg-amber/10 px-1 py-px text-[10px] text-amber">{code}</span>}
+              {code && <span className="num rounded-sm bg-gray-700 px-1 py-px text-[10px] text-gray-400">{code}</span>}
               {title}
             </h2>
           ) : (
@@ -56,7 +56,7 @@ export function PageHeader({
     <div className="flex flex-wrap items-end justify-between gap-3">
       <div className="min-w-0">
         <div className="flex items-center gap-2">
-          <span className="num rounded-sm border border-amber/40 bg-amber/10 px-1.5 py-px text-[11px] font-semibold text-amber">{code}</span>
+          <span className="num rounded-sm border border-gray-600 bg-gray-700 px-1.5 py-px text-[11px] font-semibold text-gray-400">{code}</span>
           <h1 className="page-title truncate">{title}</h1>
         </div>
         {description && <p className="page-subtitle">{description}</p>}
@@ -134,7 +134,7 @@ export function SymbolCell({ symbol, name, logo }: { symbol: string; name?: stri
     <Link href={`/stocks/${encodeURIComponent(symbol)}`} className="group flex min-w-0 items-center gap-2.5">
       <StockLogo symbol={symbol} logo={logo} size={26} />
       <span className="min-w-0 leading-tight">
-        <span className="num block font-semibold text-gray-100 group-hover:text-amber">{symbol}</span>
+        <span className="num block font-semibold text-gray-100 group-hover:text-white">{symbol}</span>
         {name && name !== symbol && <span className="block max-w-[170px] truncate text-[11px] text-gray-500">{name}</span>}
       </span>
     </Link>
@@ -162,7 +162,7 @@ export function KpiCard({
       {tone && (
         <span
           aria-hidden
-          className={cn("absolute inset-y-0 left-0 w-0.5", tone === "gain" && "bg-gain", tone === "loss" && "bg-loss", tone === "amber" && "bg-amber")}
+          className={cn("absolute inset-y-0 left-0 w-0.5", tone === "gain" && "bg-gain", tone === "loss" && "bg-loss", tone === "amber" && "bg-gray-100")}
         />
       )}
       <div className="flex items-center justify-between">

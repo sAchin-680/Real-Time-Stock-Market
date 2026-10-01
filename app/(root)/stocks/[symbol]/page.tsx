@@ -61,7 +61,7 @@ export default async function StockDetails({ params }: StockDetailsPageProps) {
 
         <div className="space-y-6">
           {position && (
-            <Panel title="Your position" action={<Link href="/portfolio" className="text-xs font-medium text-yellow-400 hover:text-yellow-500">Portfolio →</Link>}>
+            <Panel title="Your position" action={<Link href="/portfolio" className="text-xs font-medium text-gray-400 hover:text-gray-100">Portfolio →</Link>}>
               <dl className="divide-y divide-gray-600/50 px-4 md:px-5">
                 <Stat label="Shares" value={formatQuantity(position.quantity)} />
                 <Stat label="Average cost" value={formatCurrency(position.avgCost)} />
@@ -90,14 +90,14 @@ export default async function StockDetails({ params }: StockDetailsPageProps) {
             </dl>
           </Panel>
 
-          <Panel title={`Alerts (${stock.alerts.length})`} action={<Link href="/alerts" className="text-xs font-medium text-yellow-400 hover:text-yellow-500">Manage →</Link>}>
+          <Panel title={`Alerts (${stock.alerts.length})`} action={<Link href="/alerts" className="text-xs font-medium text-gray-400 hover:text-gray-100">Manage →</Link>}>
             {stock.alerts.length ? (
               <ul className="divide-y divide-gray-600/50">
                 {stock.alerts.map((a) => (
                   <li key={a.id} className="flex items-center justify-between gap-3 px-4 py-3 text-sm md:px-5">
                     <div className="min-w-0">
                       <p className="truncate text-gray-100">{a.name}</p>
-                      <p className="num text-xs text-yellow-400/90">{describeAlert(a.condition, a.threshold)}</p>
+                      <p className="num text-xs text-gray-400">{describeAlert(a.condition, a.threshold)}</p>
                     </div>
                     <Badge tone={a.active ? "gain" : "neutral"}>{a.active ? "Active" : "Paused"}</Badge>
                   </li>
@@ -113,7 +113,7 @@ export default async function StockDetails({ params }: StockDetailsPageProps) {
           </Panel>
 
           {stock.weburl && (
-            <a href={stock.weburl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-yellow-400">
+            <a href={stock.weburl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-100">
               Company website <ExternalLink className="size-3.5" />
             </a>
           )}

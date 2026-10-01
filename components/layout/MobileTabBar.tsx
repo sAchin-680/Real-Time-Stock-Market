@@ -16,7 +16,7 @@ export default function MobileTabBar() {
         const Icon = NAV_ICONS[href];
         const active = isNavActive(pathname, href);
         return (
-          <Link key={href} href={href} aria-current={active ? "page" : undefined} className={cn("flex flex-col items-center gap-1 py-2 text-[10px] font-medium", active ? "text-amber" : "text-gray-500")}>
+          <Link key={href} href={href} aria-current={active ? "page" : undefined} className={cn("flex flex-col items-center gap-1 py-2 text-[10px] font-medium", active ? "text-gray-100" : "text-gray-500")}>
             <Icon className="size-5" />
             {label}
           </Link>

@@ -28,7 +28,7 @@ export default function DemoButton() {
         type="button"
         onClick={start}
         disabled={pending}
-        className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-yellow-500/40 bg-yellow-500/10 font-medium text-yellow-400 transition-colors hover:bg-yellow-500/15 disabled:opacity-60"
+        className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-600 bg-gray-800 font-medium text-gray-100 transition-colors hover:border-gray-500 hover:bg-gray-700 disabled:opacity-60"
       >
         {pending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
         {pending ? "Preparing your demo…" : "Try the live demo — no sign up"}

@@ -49,14 +49,14 @@
 
 @theme {
   /* Graphite scale (names kept so every component re-themes in one place). */
-  --color-gray-950: #05070a;
-  --color-gray-900: #07090d;
-  --color-gray-800: #0d1117;
-  --color-gray-700: #141a23;
-  --color-gray-600: #212935;
-  --color-gray-500: #7d8797;
-  --color-gray-400: #b6c0cd;
-  --color-gray-100: #e6ebf2;
+  --color-gray-950: #08080a;
+  --color-gray-900: #0b0b0d;
+  --color-gray-800: #111113;
+  --color-gray-700: #18181b;
+  --color-gray-600: #27272a;
+  --color-gray-500: #7a7a83;
+  --color-gray-400: #a8a8b0;
+  --color-gray-100: #ededef;
 
   --color-yellow-400: #f5a524;
   --color-yellow-500: #e3921a;
@@ -68,39 +68,39 @@
 
 :root,
 .dark {
-  --radius: 0.25rem;
-  --background: #07090d;
-  --foreground: #e6ebf2;
-  --card: #0d1117;
-  --card-foreground: #e6ebf2;
-  --popover: #0d1117;
-  --popover-foreground: #e6ebf2;
-  --primary: #f5a524;
-  --primary-foreground: #0a0c10;
-  --secondary: #141a23;
-  --secondary-foreground: #e6ebf2;
-  --muted: #141a23;
-  --muted-foreground: #7d8797;
-  --accent: #141a23;
-  --accent-foreground: #e6ebf2;
-  --destructive: #ff5d6c;
-  --border: #212935;
-  --input: #212935;
-  --ring: #f5a524;
-  --sidebar: #05070a;
-  --sidebar-foreground: #b6c0cd;
-  --sidebar-accent: #141a23;
-  --sidebar-border: #171d27;
+  --radius: 0.375rem;
+  --background: #0b0b0d;
+  --foreground: #ededef;
+  --card: #111113;
+  --card-foreground: #ededef;
+  --popover: #141416;
+  --popover-foreground: #ededef;
+  --primary: #ededef;
+  --primary-foreground: #0b0b0d;
+  --secondary: #18181b;
+  --secondary-foreground: #ededef;
+  --muted: #18181b;
+  --muted-foreground: #7a7a83;
+  --accent: #18181b;
+  --accent-foreground: #ededef;
+  --destructive: #f2555a;
+  --border: #232327;
+  --input: #27272a;
+  --ring: #a8a8b0;
+  --sidebar: #08080a;
+  --sidebar-foreground: #a8a8b0;
+  --sidebar-accent: #18181b;
+  --sidebar-border: #1c1c1f;
 
   --amber: #f5a524;
   --cyan: #22d3ee;
   /* Text tones (≥4.5:1 on panels) and chart fills (validated band + CVD). */
-  --gain: #3ddc97;
-  --loss: #ff5d6c;
+  --gain: #4cc38a;
+  --loss: #f2555a;
   --gain-fill: #12a883;
   --loss-fill: #e5484d;
   --viz-bar: #3987e5;
-  --viz-track: #1a212c;
+  --viz-track: #1f1f23;
 }
 
 @layer base {
@@ -113,11 +113,11 @@
     font-feature-settings: "ss02", "cv05";
   }
   ::selection {
-    background: color-mix(in srgb, var(--amber) 35%, transparent);
+    background: color-mix(in srgb, #ffffff 22%, transparent);
     color: #fff;
   }
   :focus-visible {
-    outline: 2px solid var(--amber);
+    outline: 2px solid color-mix(in srgb, #ffffff 55%, transparent);
     outline-offset: 2px;
   }
 }
@@ -135,13 +135,13 @@
 
   /* Panels */
   .panel {
-    @apply rounded-md border border-gray-600 bg-gray-800;
+    @apply rounded-lg border border-gray-600/80 bg-gray-800 shadow-[0_1px_0_rgba(255,255,255,0.03)_inset];
   }
   .panel-header {
     @apply flex h-10 items-center justify-between gap-3 border-b border-gray-600 px-3 md:px-4;
   }
   .panel-title {
-    @apply label flex items-center gap-2 text-gray-400;
+    @apply flex items-center gap-2 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-gray-400;
   }
 
   /* Page chrome */
@@ -200,10 +200,13 @@
     @apply cursor-pointer rounded-sm bg-gray-800 px-3 py-2 text-gray-100 hover:!bg-gray-700;
   }
   .footer-link {
-    @apply font-medium text-yellow-400 hover:underline;
+    @apply font-medium text-gray-100 underline-offset-4 hover:underline;
+  }
+  .btn-primary {
+    @apply bg-gray-100 font-medium text-gray-950 shadow-[0_1px_0_rgba(255,255,255,0.2)_inset] hover:bg-white;
   }
   .yellow-btn {
-    @apply h-10 cursor-pointer rounded-md bg-yellow-400 text-sm font-semibold text-gray-950 hover:bg-yellow-500 disabled:opacity-50;
+    @apply h-10 cursor-pointer rounded-md bg-gray-100 text-sm font-semibold text-gray-950 hover:bg-white disabled:opacity-50;
   }
 
   /* Command palette */
@@ -267,11 +270,11 @@
 /* Thin scrollbars */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #212935 transparent;
+  scrollbar-color: #27272a transparent;
 }
 *::-webkit-scrollbar { width: 8px; height: 8px; }
-*::-webkit-scrollbar-thumb { background: #212935; border-radius: 4px; }
-*::-webkit-scrollbar-thumb:hover { background: #2c3644; }
+*::-webkit-scrollbar-thumb { background: #27272a; border-radius: 4px; }
+*::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
 
 /* TradingView embeds */
 .tradingview-widget-container {

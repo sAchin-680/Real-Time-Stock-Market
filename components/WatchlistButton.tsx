@@ -51,7 +51,7 @@ const WatchlistButton = ({
         onClick={toggle}
         className={cn(
           "flex size-8 cursor-pointer items-center justify-center rounded-md transition-colors hover:bg-gray-700",
-          added ? "text-yellow-400" : "text-gray-500 hover:text-yellow-400"
+          added ? "text-gray-100" : "text-gray-500 hover:text-gray-100"
         )}
       >
         {showTrashIcon && added ? <Trash2 className="size-4" /> : <Star className="size-4" fill={added ? "currentColor" : "none"} />}
@@ -66,9 +66,9 @@ const WatchlistButton = ({
       onClick={toggle}
       disabled={pending}
       aria-pressed={added}
-      className={cn("h-10", !added && "bg-yellow-400 text-gray-900 hover:bg-yellow-500")}
+      className={cn("h-10", !added && "btn-primary")}
     >
-      {pending ? <Loader2 className="animate-spin" /> : <Star fill={added ? "currentColor" : "none"} className={cn(added && "text-yellow-400")} />}
+      {pending ? <Loader2 className="animate-spin" /> : <Star fill={added ? "currentColor" : "none"} className={cn(added && "text-gray-100")} />}
       {added ? "Watching" : "Add to watchlist"}
     </Button>
   );

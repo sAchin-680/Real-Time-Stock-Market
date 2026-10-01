@@ -17,7 +17,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
         title="Something went wrong"
         description={`We couldn't load this page. ${error.digest ? `Reference: ${error.digest}` : "Please try again."}`}
         action={
-          <Button onClick={reset} className="bg-yellow-400 text-gray-900 hover:bg-yellow-500">
+          <Button onClick={reset} className="btn-primary">
             Try again
           </Button>
         }

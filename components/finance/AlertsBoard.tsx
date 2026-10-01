@@ -39,7 +39,7 @@ function AlertCard({ alert }: { alert: AlertDTO }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <Link href={`/stocks/${alert.symbol}`} className="num font-semibold text-gray-100 hover:text-yellow-400">{alert.symbol}</Link>
+            <Link href={`/stocks/${alert.symbol}`} className="num font-semibold text-gray-100 hover:text-gray-100">{alert.symbol}</Link>
             <Badge tone={alert.active ? "gain" : "neutral"}>{alert.active ? "Active" : "Paused"}</Badge>
             <Badge>{alert.frequency === "DAILY" ? "Daily" : "Once"}</Badge>
           </div>
@@ -81,7 +81,7 @@ function AlertCard({ alert }: { alert: AlertDTO }) {
       <dl className="mt-4 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
         <div>
           <dt className="text-xs text-gray-500">Condition</dt>
-          <dd className="num mt-0.5 whitespace-nowrap text-xs text-yellow-400 sm:text-sm">{describeAlert(alert.condition, alert.threshold)}</dd>
+          <dd className="num mt-0.5 whitespace-nowrap text-xs text-gray-100 sm:text-sm">{describeAlert(alert.condition, alert.threshold)}</dd>
         </div>
         <div>
           <dt className="text-xs text-gray-500">Last price</dt>
@@ -157,7 +157,7 @@ export default function AlertsBoard({ alerts }: { alerts: AlertDTO[] }) {
           <Button variant="outline" onClick={checkNow} disabled={checking || !stats.active}>
             {checking ? <Loader2 className="animate-spin" /> : <RefreshCw />} Check now
           </Button>
-          <AlertFormDialog trigger={<Button className="bg-yellow-400 text-gray-900 hover:bg-yellow-500"><Bell /> New alert</Button>} />
+          <AlertFormDialog trigger={<Button className="btn-primary"><Bell /> New alert</Button>} />
         </div>
       </div>
 
@@ -189,7 +189,7 @@ export default function AlertsBoard({ alerts }: { alerts: AlertDTO[] }) {
             icon={<Bell className="size-5" />}
             title="No alerts yet"
             description="Get notified when a stock crosses a price or moves sharply in a day."
-            action={<AlertFormDialog trigger={<Button className="bg-yellow-400 text-gray-900 hover:bg-yellow-500"><Bell /> Create your first alert</Button>} />}
+            action={<AlertFormDialog trigger={<Button className="btn-primary"><Bell /> Create your first alert</Button>} />}
           />
         </div>
       )}

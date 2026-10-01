@@ -92,7 +92,7 @@ export default function TradeDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger ?? (
-          <Button className="bg-yellow-400 text-gray-900 hover:bg-yellow-500">
+          <Button className="btn-primary">
             <Plus /> Add trade
           </Button>
         )}
@@ -166,7 +166,7 @@ export default function TradeDialog({
 
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button type="submit" disabled={pending} className="bg-yellow-400 text-gray-900 hover:bg-yellow-500">
+            <Button type="submit" disabled={pending} className="btn-primary">
               {pending && <Loader2 className="animate-spin" />} Save transaction
             </Button>
           </DialogFooter>

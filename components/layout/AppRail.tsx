@@ -35,16 +35,16 @@ export default function AppRail({ isDemo }: { isDemo?: boolean }) {
                 active ? "bg-sidebar-accent text-gray-100" : "text-gray-500 hover:bg-sidebar-accent/60 hover:text-gray-100"
               )}
             >
-              {active && <span className="absolute top-2 bottom-2 left-0 w-0.5 rounded-full bg-amber" />}
-              <Icon className={cn("size-[18px]", active && "text-amber")} />
-              <span className={cn("num text-[9px] font-semibold tracking-wider", active ? "text-amber" : "text-gray-500")}>{code}</span>
+              {active && <span className="absolute top-2 bottom-2 left-0 w-0.5 rounded-full bg-gray-100" />}
+              <Icon className={cn("size-[18px]", active && "text-gray-100")} />
+              <span className={cn("num text-[9px] font-semibold tracking-wider", active ? "text-gray-100" : "text-gray-500")}>{code}</span>
             </Link>
           );
         })}
       </nav>
 
       {isDemo && (
-        <span className="num mb-3 rounded border border-amber/40 bg-amber/10 px-1.5 py-0.5 text-[9px] font-semibold tracking-wider text-amber" title="Demo workspace: sample data, private to you, resets after 24h">
+        <span className="num mb-3 rounded border border-gray-600 bg-gray-700 px-1.5 py-0.5 text-[9px] font-semibold tracking-wider text-gray-400" title="Demo workspace: sample data, private to you, resets after 24h">
           DEMO
         </span>
       )}
