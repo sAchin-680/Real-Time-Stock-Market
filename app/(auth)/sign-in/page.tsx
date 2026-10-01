@@ -4,13 +4,14 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import InputField from "@/components/forms/InputField";
 import FooterLink from "@/components/forms/FooterLink";
-import { signInWithEmail, signUpWithEmail } from "@/lib/actions/auth.actions";
+import { signInWithEmail } from "@/lib/actions/auth.actions";
 import { toast } from "sonner";
-import { signInEmail } from "better-auth/api";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { EMAIL_PATTERN } from "@/lib/constants";
 
 const SignIn = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const {
     register,
     handleSubmit,
@@ -26,7 +27,13 @@ const SignIn = () => {
   const onSubmit = async (data: SignInFormData) => {
     try {
       const result = await signInWithEmail(data);
-      if (result.success) router.push("/");
+      if (!result.success) {
+        toast.error("Sign in failed", { description: result.error });
+        return;
+      }
+      const next = searchParams.get("next");
+      router.push(next && next.startsWith("/") && !next.startsWith("//") ? next : "/");
+      router.refresh();
     } catch (e) {
       console.error(e);
       toast.error("Sign in failed", {
@@ -48,7 +55,7 @@ const SignIn = () => {
           error={errors.email}
           validation={{
             required: "Email is required",
-            pattern: /^\w+@\w+\.\w+$/,
+            pattern: { value: EMAIL_PATTERN, message: "Enter a valid email address" },
           }}
         />
 
@@ -59,7 +66,10 @@ const SignIn = () => {
           type="password"
           register={register}
           error={errors.password}
-          validation={{ required: "Password is required", minLength: 8 }}
+          validation={{
+            required: "Password is required",
+            minLength: { value: 8, message: "Password must be at least 8 characters" },
+          }}
         />
 
         <Button

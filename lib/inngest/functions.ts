@@ -5,8 +5,6 @@ import {getAllUsersForNewsEmail} from "@/lib/actions/userActions";
 import { getWatchlistSymbolsByEmail } from "@/lib/actions/watchlist.actions";
 import { getNews } from "@/lib/actions/finhub.actions";
 import {formatDateToday} from "@/lib/utils";
-import { User, UserForNewsEmail } from "@/app/(root)/types/global.d.ts";
-import { MarketNewsArticle, RawNewsArticle } from "@app/(root)/types/global.d.ts";
 
 export const sendSignUpEmail = inngest.createFunction(
     { id: 'sign-up-email' },
@@ -100,7 +98,7 @@ export const sendDailyNewsSummary = inngest.createFunction(
                     const newsContent = (part && 'text' in part ? part.text : null) || 'No market news.'
 
                     userNewsSummaries.push({ user, newsContent });
-                } catch (e) {
+                } catch {
                     console.error('Failed to summarize news for : ', user.email);
                     userNewsSummaries.push({ user, newsContent: null });
                 }

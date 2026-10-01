@@ -12,7 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Loader2, Star, TrendingUp } from "lucide-react";
 import Link from "next/link";
-import { isSea } from "node:sea";
 import { searchStocks } from "@/lib/actions/finhub.actions";
 import { useDebounce } from "@/hooks/useDebounce";
 

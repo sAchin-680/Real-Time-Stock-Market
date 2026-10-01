@@ -1,7 +1,5 @@
-import Header from "@/components/Header";
 import Image from "next/image";
 import Link from "next/link";
-import { Toaster } from "@/components/ui/sonner";
 import { headers } from "next/headers";
 import { auth } from "@/lib/better-auth/auth";
 import { redirect } from "next/navigation";
