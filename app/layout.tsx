@@ -26,7 +26,8 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport = { themeColor: "#050505", colorScheme: "dark" as const };
+// No colorScheme here: a dark scheme makes browsers paint cross-origin TradingView iframes opaque white.
+export const viewport = { themeColor: "#050505" };
 
 export default function RootLayout({
   children,
