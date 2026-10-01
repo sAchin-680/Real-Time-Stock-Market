@@ -101,9 +101,13 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
           <Logo size={26} />
         </Link>
         <div className="mx-auto flex w-full max-w-[400px] flex-1 flex-col justify-center py-10">{children}</div>
-        <p className="text-[11px] text-gray-500">
-          Market data by Finnhub &amp; TradingView. For information only — not investment advice.
-        </p>
+        <footer className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-gray-500">
+          <span>© {new Date().getFullYear()} Tickline</span>
+          <Link href="/terms" className="hover:text-gray-100">Terms</Link>
+          <Link href="/privacy" className="hover:text-gray-100">Privacy</Link>
+          <Link href="/disclaimer" className="hover:text-gray-100">Disclaimer</Link>
+          <span className="basis-full sm:basis-auto">Market data by Finnhub &amp; TradingView. Not investment advice.</span>
+        </footer>
       </section>
 
       <section className="terminal-grid relative hidden flex-1 flex-col justify-center overflow-hidden border-l border-gray-600 bg-gray-950 px-12 py-12 lg:flex xl:px-20">

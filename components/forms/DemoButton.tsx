@@ -23,7 +23,7 @@ export default function DemoButton() {
     });
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <button
         type="button"
         onClick={start}
@@ -34,11 +34,6 @@ export default function DemoButton() {
         {pending ? "Preparing your sandbox…" : "Launch live demo"}
       </button>
       <p className="text-center text-[11px] text-gray-500">No sign-up · private sandbox with a sample portfolio · resets in 24h</p>
-      <div className="flex items-center gap-3 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-gray-500">
-        <span className="h-px flex-1 bg-gray-600" />
-        or with email
-        <span className="h-px flex-1 bg-gray-600" />
-      </div>
     </div>
   );
 }
