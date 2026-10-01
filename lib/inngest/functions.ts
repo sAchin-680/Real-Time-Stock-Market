@@ -1,9 +1,11 @@
 import {inngest} from "@/lib/inngest/client";
 import {NEWS_SUMMARY_EMAIL_PROMPT, PERSONALIZED_WELCOME_EMAIL_PROMPT} from "@/lib/inngest/prompts";
-import {sendNewsSummaryEmail, sendWelcomeEmail} from "@/lib/nodemailer";
-import {getAllUsersForNewsEmail} from "@/lib/actions/userActions";
-import { getWatchlistSymbolsByEmail } from "@/lib/actions/watchlist.actions";
-import { getNews } from "@/lib/actions/finhub.actions";
+import {sendNewsSummaryEmail, sendPriceAlertEmail, sendWelcomeEmail} from "@/lib/nodemailer";
+import { getAllUsersForNewsEmail, getUsersByIds, getWatchlistSymbolsByEmail } from "@/lib/services/users";
+import { evaluateAlerts } from "@/lib/services/alerts";
+import { purgeExpiredDemoUsers } from "@/lib/services/demo";
+import { getMarketStatus } from "@/lib/market-hours";
+import { getNews } from "@/lib/services/news";
 import {formatDateToday} from "@/lib/utils";
 
 export const sendSignUpEmail = inngest.createFunction(
@@ -110,11 +112,47 @@ export const sendDailyNewsSummary = inngest.createFunction(
                     userNewsSummaries.map(async ({ user, newsContent}) => {
                         if(!newsContent) return false;
 
-                        return await sendNewsSummaryEmail({ email: user.email, date: formatDateToday, newsContent })
+                        return await sendNewsSummaryEmail({ email: user.email, date: formatDateToday(), newsContent })
                     })
                 )
             })
 
         return { success: true, message: 'Daily news summary emails sent successfully' }
+    }
+)
+
+export const checkPriceAlerts = inngest.createFunction(
+    { id: 'check-price-alerts', concurrency: { limit: 1 } },
+    [ { event: 'app/alerts.check' }, { cron: 'TZ=America/New_York */5 9-16 * * 1-5' } ],
+    async ({ step }) => {
+        const market = getMarketStatus();
+        if (!market.isOpen) return { skipped: true, reason: market.label };
+
+        const fired = await step.run('evaluate-alerts', () => evaluateAlerts());
+        if (!fired.length) return { fired: 0 };
+
+        const users = await step.run('load-recipients', () => getUsersByIds([...new Set(fired.map((f) => f.userId))]));
+
+        const sent = await step.run('send-alert-emails', async () => {
+            const results = await Promise.allSettled(
+                fired.map((f) => {
+                    const user = users[f.userId];
+                    if (!user?.email) return Promise.resolve(false);
+                    return sendPriceAlertEmail({ email: user.email, symbol: f.symbol, company: f.company, condition: f.condition, threshold: f.threshold, price: f.price });
+                })
+            );
+            return results.filter((r) => r.status === 'fulfilled' && r.value).length;
+        });
+
+        return { fired: fired.length, emailed: sent };
+    }
+)
+
+export const purgeDemoAccounts = inngest.createFunction(
+    { id: 'purge-demo-accounts' },
+    [ { event: 'app/demo.purge' }, { cron: '0 * * * *' } ],
+    async ({ step }) => {
+        const purged = await step.run('purge-expired-demo-users', purgeExpiredDemoUsers);
+        return { purged };
     }
 )
