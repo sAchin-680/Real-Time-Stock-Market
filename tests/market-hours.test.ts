@@ -27,3 +27,23 @@ describe('getMarketStatus', () => {
     expect(at('2026-10-02T02:00:00Z').tradingDate).toBe('2026-10-01');
   });
 });
+
+import { formatDuration, getNextSessionChange } from '@/lib/market-hours';
+
+describe('getNextSessionChange', () => {
+  it('counts down to the close during the session', () => {
+    const c = getNextSessionChange(new Date('2026-10-01T18:00:00Z')); // 2:00pm ET
+    expect(c.label).toBe('Closes');
+    expect(formatDuration(c.ms)).toBe('2h 0m');
+  });
+  it('counts down to the next open across a weekend', () => {
+    const c = getNextSessionChange(new Date('2026-10-02T21:00:00Z')); // Fri 5pm ET
+    expect(c.label).toBe('Opens');
+    expect(formatDuration(c.ms)).toBe('2d 16h'); // Mon 9:30am ET
+  });
+  it('skips holidays', () => {
+    const c = getNextSessionChange(new Date('2026-11-25T21:00:00Z')); // Wed before Thanksgiving
+    expect(c.label).toBe('Opens');
+    expect(c.ms).toBeGreaterThan(36 * 3600_000); // Friday, not Thursday
+  });
+});
