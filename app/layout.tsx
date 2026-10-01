@@ -14,9 +14,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Real Time Stock Market",
-  description: "Real time Stock Market Web App ",
+  title: { default: "Signalist — Portfolio & Market Terminal", template: "%s · Signalist" },
+  description:
+    "Track your portfolio in real time: live P&L, FIFO cost basis, sector allocation, risk metrics, price alerts and market news.",
+  applicationName: "Signalist",
+  metadataBase: new URL(process.env.BETTER_AUTH_URL || "http://localhost:3000"),
+  openGraph: {
+    title: "Signalist — Portfolio & Market Terminal",
+    description: "Live P&L, allocation, risk and price alerts for your portfolio.",
+    type: "website",
+  },
 };
+
+export const viewport = { themeColor: "#050505", colorScheme: "dark" as const };
 
 export default function RootLayout({
   children,
