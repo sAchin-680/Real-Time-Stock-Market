@@ -1,46 +1,46 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
-import './globals.css';
+import { BRAND } from "@/components/brand/Logo";
+import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const plexSans = IBM_Plex_Sans({
+  variable: "--font-plex-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: { default: "Signalist — Portfolio & Market Terminal", template: "%s · Signalist" },
+  title: { default: `${BRAND.name} — ${BRAND.tagline}`, template: `%s · ${BRAND.name}` },
   description:
-    "Track your portfolio in real time: live P&L, FIFO cost basis, sector allocation, risk metrics, price alerts and market news.",
-  applicationName: "Signalist",
+    "Tickline streams live prices into your portfolio: tick-by-tick P&L, FIFO cost basis, allocation, risk, price alerts and market news in one terminal.",
+  applicationName: BRAND.name,
   metadataBase: new URL(process.env.BETTER_AUTH_URL || "http://localhost:3000"),
   openGraph: {
-    title: "Signalist — Portfolio & Market Terminal",
-    description: "Live P&L, allocation, risk and price alerts for your portfolio.",
+    title: `${BRAND.name} — ${BRAND.tagline}`,
+    description: "Live P&L, allocation, risk and price alerts, streamed in real time.",
     type: "website",
+    siteName: BRAND.name,
   },
 };
 
 // No colorScheme here: a dark scheme makes browsers paint cross-origin TradingView iframes opaque white.
-export const viewport = { themeColor: "#050505" };
+export const viewport = { themeColor: "#07090d" };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className="dark">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${plexSans.variable} ${plexMono.variable} font-sans`}>
         {children}
-        <Toaster theme="dark" position="top-right" richColors closeButton />
+        <Toaster theme="dark" position="bottom-right" closeButton />
       </body>
     </html>
   );
