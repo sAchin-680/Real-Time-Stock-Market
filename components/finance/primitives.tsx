@@ -6,27 +6,63 @@ import { formatCurrency, formatPercent, trendOf } from "@/lib/format";
 
 export function Panel({
   title,
+  code,
   action,
   className,
   bodyClassName,
   children,
 }: {
   title?: React.ReactNode;
+  /** Terminal mnemonic shown before the title, e.g. "PORT". */
+  code?: string;
   action?: React.ReactNode;
   className?: string;
   bodyClassName?: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className={cn("panel overflow-hidden", className)}>
+    <section className={cn("panel flex flex-col overflow-hidden", className)}>
       {(title || action) && (
         <header className="panel-header">
-          {title ? <h2 className="panel-title">{title}</h2> : <span />}
+          {title ? (
+            <h2 className="panel-title">
+              {code && <span className="num rounded-sm bg-amber/10 px-1 py-px text-[10px] text-amber">{code}</span>}
+              {title}
+            </h2>
+          ) : (
+            <span />
+          )}
           {action}
         </header>
       )}
-      <div className={bodyClassName}>{children}</div>
+      <div className={cn("min-h-0 flex-1", bodyClassName)}>{children}</div>
     </section>
+  );
+}
+
+/** Page title row: mnemonic, title, description, actions. */
+export function PageHeader({
+  code,
+  title,
+  description,
+  actions,
+}: {
+  code: string;
+  title: React.ReactNode;
+  description?: React.ReactNode;
+  actions?: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-wrap items-end justify-between gap-3">
+      <div className="min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="num rounded-sm border border-amber/40 bg-amber/10 px-1.5 py-px text-[11px] font-semibold text-amber">{code}</span>
+          <h1 className="page-title truncate">{title}</h1>
+        </div>
+        {description && <p className="page-subtitle">{description}</p>}
+      </div>
+      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+    </div>
   );
 }
 
@@ -77,7 +113,7 @@ export function StockLogo({ symbol, logo, size = 32 }: { symbol: string; logo?: 
         width={size}
         height={size}
         unoptimized
-        className="shrink-0 rounded-md bg-white object-contain p-0.5"
+        className="shrink-0 rounded bg-white object-contain p-0.5"
         style={{ width: size, height: size }}
       />
     );
@@ -85,7 +121,7 @@ export function StockLogo({ symbol, logo, size = 32 }: { symbol: string; logo?: 
   return (
     <span
       aria-hidden
-      className="num flex shrink-0 items-center justify-center rounded-md bg-gray-700 text-[10px] font-semibold text-gray-400"
+      className="num flex shrink-0 items-center justify-center rounded border border-gray-600 bg-gray-700 text-[9px] font-semibold text-gray-400"
       style={{ width: size, height: size }}
     >
       {symbol.slice(0, 4)}
@@ -95,11 +131,11 @@ export function StockLogo({ symbol, logo, size = 32 }: { symbol: string; logo?: 
 
 export function SymbolCell({ symbol, name, logo }: { symbol: string; name?: string; logo?: string }) {
   return (
-    <Link href={`/stocks/${encodeURIComponent(symbol)}`} className="group flex min-w-0 items-center gap-3">
-      <StockLogo symbol={symbol} logo={logo} />
-      <span className="min-w-0">
-        <span className="block font-semibold text-gray-100 group-hover:text-yellow-400">{symbol}</span>
-        {name && name !== symbol && <span className="block max-w-[180px] truncate text-xs text-gray-500">{name}</span>}
+    <Link href={`/stocks/${encodeURIComponent(symbol)}`} className="group flex min-w-0 items-center gap-2.5">
+      <StockLogo symbol={symbol} logo={logo} size={26} />
+      <span className="min-w-0 leading-tight">
+        <span className="num block font-semibold text-gray-100 group-hover:text-amber">{symbol}</span>
+        {name && name !== symbol && <span className="block max-w-[170px] truncate text-[11px] text-gray-500">{name}</span>}
       </span>
     </Link>
   );
@@ -111,22 +147,31 @@ export function KpiCard({
   delta,
   hint,
   icon,
+  tone,
 }: {
   label: string;
   value: React.ReactNode;
   delta?: React.ReactNode;
   hint?: React.ReactNode;
   icon?: React.ReactNode;
+  /** Accent strip on the left edge. */
+  tone?: "gain" | "loss" | "amber";
 }) {
   return (
-    <div className="panel flex flex-col gap-2 p-4 md:p-5">
-      <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wider text-gray-500">
-        <span>{label}</span>
+    <div className="panel relative flex flex-col gap-1.5 overflow-hidden px-4 py-3.5">
+      {tone && (
+        <span
+          aria-hidden
+          className={cn("absolute inset-y-0 left-0 w-0.5", tone === "gain" && "bg-gain", tone === "loss" && "bg-loss", tone === "amber" && "bg-amber")}
+        />
+      )}
+      <div className="flex items-center justify-between">
+        <span className="label">{label}</span>
         {icon}
       </div>
-      <div className="num text-2xl font-semibold text-gray-100 md:text-[28px]">{value}</div>
+      <div className="num truncate text-xl font-semibold text-gray-100 md:text-2xl">{value}</div>
       {(delta || hint) && (
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
           {delta}
           {hint && <span className="text-gray-500">{hint}</span>}
         </div>
@@ -157,7 +202,7 @@ export function RangeBar({ low, high, value }: { low?: number; high?: number; va
       <span className="num text-xs text-gray-500">{formatCurrency(low, { compact: true })}</span>
       <div className="relative h-1.5 w-20 rounded-full bg-viz-track">
         <span
-          className="absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-gray-800 bg-yellow-400"
+          className="absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-gray-800 bg-amber"
           style={{ left: `${pos}%` }}
         />
       </div>
@@ -179,8 +224,8 @@ export function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 px-6 py-14 text-center">
-      {icon && <div className="flex size-12 items-center justify-center rounded-full bg-gray-700 text-yellow-400">{icon}</div>}
-      <h3 className="text-lg font-semibold text-gray-100">{title}</h3>
+      {icon && <div className="flex size-11 items-center justify-center rounded-md border border-gray-600 bg-gray-700 text-amber">{icon}</div>}
+      <h3 className="text-base font-semibold text-gray-100">{title}</h3>
       {description && <p className="max-w-md text-sm text-gray-500">{description}</p>}
       {action && <div className="mt-2 flex flex-wrap justify-center gap-2">{action}</div>}
     </div>
@@ -199,12 +244,12 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium",
+        "inline-flex items-center gap-1 rounded-sm px-1.5 py-px text-[11px] font-semibold uppercase tracking-wide",
         tone === "neutral" && "bg-gray-700 text-gray-400",
         tone === "gain" && "bg-[color-mix(in_srgb,var(--gain)_14%,transparent)] text-gain",
         tone === "loss" && "bg-[color-mix(in_srgb,var(--loss)_14%,transparent)] text-loss",
-        tone === "warn" && "bg-yellow-500/15 text-yellow-400",
-        tone === "info" && "bg-blue-600/15 text-[#8b93ff]",
+        tone === "warn" && "bg-amber/15 text-amber",
+        tone === "info" && "bg-cyan/10 text-cyan",
         className
       )}
     >

@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { Keyboard, LogOut } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,15 +10,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
-import NavItems from "@/components/NavItems";
 import { signOut } from "@/lib/actions/auth.actions";
+import { OPEN_HELP_EVENT } from "@/components/layout/KeyboardShortcuts";
+
+const initials = (name?: string) =>
+  (name || "U")
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase())
+    .join("");
 
 const UserDropdown = ({ user }: { user: User }) => {
   const router = useRouter();
+  const isDemo = /@demo\.(tickline|signalist)\.app$/.test(user.email);
 
   const handleSignOut = async () => {
     await signOut();
@@ -26,51 +32,25 @@ const UserDropdown = ({ user }: { user: User }) => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          className="flex items-center gap-3 text-gray-400 hover:text-yellow-500"
-        >
-          <Avatar className="h-8 w-8">
-            <AvatarFallback className="bg-yellow-500 text-yellow-900 text-sm font-bold">
-              {user.name?.[0]?.toUpperCase() ?? "U"}
-            </AvatarFallback>
-          </Avatar>
-          <div className="hidden md:flex flex-col items-start">
-            <span className="text-base font-medium text-gray-400">
-              {user.name}
-            </span>
-          </div>
-        </Button>
+      <DropdownMenuTrigger
+        className="flex size-8 shrink-0 items-center justify-center rounded-md border border-gray-600 bg-gray-700 text-[11px] font-semibold text-gray-100 transition-colors hover:border-amber/60"
+        aria-label="Account menu"
+      >
+        {initials(user.name)}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64 text-gray-400">
-        <DropdownMenuLabel>
-          <div className="flex relative items-center gap-3 py-2">
-            <Avatar className="h-10 w-10">
-                <AvatarFallback className="bg-yellow-500 text-yellow-900 text-sm font-bold">
-                {user.name?.[0]?.toUpperCase() ?? "U"}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col">
-              <span className="text-base font-medium text-gray-400">
-                {user.name}
-              </span>
-              <span className="text-sm text-gray-500">{user.email}</span>
-            </div>
-          </div>
+      <DropdownMenuContent align="end" className="w-64 border-gray-600 bg-gray-800 text-gray-400">
+        <DropdownMenuLabel className="py-2.5">
+          <p className="truncate text-sm font-medium text-gray-100">{user.name}</p>
+          <p className="truncate text-xs font-normal text-gray-500">{isDemo ? "Demo workspace · resets in 24h" : user.email}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-gray-600" />
-        <DropdownMenuItem
-          onClick={handleSignOut}
-          className="text-gray-100 text-md font-medium focus:bg-transparent focus:text-yellow-500 transition-colors cursor-pointer"
-        >
-          <LogOut className="h-4 w-4 mr-2 hidden sm:block" />
-          Logout
+        <DropdownMenuItem onClick={() => window.dispatchEvent(new Event(OPEN_HELP_EVENT))} className="cursor-pointer text-[13px] focus:bg-gray-700 focus:text-gray-100">
+          <Keyboard className="size-4" /> Keyboard shortcuts
+          <kbd className="num ml-auto text-[10px] text-gray-500">?</kbd>
         </DropdownMenuItem>
-        <DropdownMenuSeparator className="bg-gray-600 lg:hidden" />
-        <nav className="lg:hidden" aria-label="Mobile">
-          <NavItems />
-        </nav>
+        <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-[13px] focus:bg-gray-700 focus:text-gray-100">
+          <LogOut className="size-4" /> Sign out
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

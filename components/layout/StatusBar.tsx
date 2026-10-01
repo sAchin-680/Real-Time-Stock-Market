@@ -1,18 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Keyboard } from "lucide-react";
 import { formatDuration, getMarketStatus, getNextSessionChange, type MarketStatus } from "@/lib/market-hours";
 import { cn } from "@/lib/utils";
 
 const DOT: Record<MarketStatus["session"], string> = {
-  open: "bg-[var(--gain)]",
-  pre: "bg-yellow-400",
-  post: "bg-yellow-400",
+  open: "bg-gain",
+  pre: "bg-amber",
+  post: "bg-amber",
   closed: "bg-gray-500",
 };
 
-/** Bottom status bar: session, countdown to the next open/close, exchange clock. */
+const KEYS: [string, string][] = [
+  ["/", "Command"],
+  ["T", "Trade"],
+  ["G P", "Portfolio"],
+  ["G W", "Watchlist"],
+  ["?", "Help"],
+];
+
+/** Bottom status bar: session, countdown, function-key legend. */
 export default function StatusBar() {
   const [now, setNow] = useState<Date | null>(null);
 
@@ -22,24 +29,27 @@ export default function StatusBar() {
     return () => clearInterval(id);
   }, []);
 
-  if (!now) return <footer className="h-7 border-t border-gray-600/50 bg-gray-900" />;
+  if (!now) return <footer className="hidden h-7 border-t border-gray-600 bg-gray-950 lg:block" />;
 
   const status = getMarketStatus(now);
   const next = getNextSessionChange(now);
-  const nyTime = now.toLocaleTimeString("en-US", { timeZone: "America/New_York", hour: "2-digit", minute: "2-digit" });
 
   return (
-    <footer className="sticky bottom-0 z-30 flex h-7 items-center gap-4 border-t border-gray-600/50 bg-gray-900/95 px-4 text-[11px] text-gray-500 backdrop-blur md:px-8">
+    <footer className="sticky bottom-0 z-30 hidden h-7 items-center gap-4 border-t border-gray-600 bg-gray-950/95 px-4 text-[11px] text-gray-500 backdrop-blur lg:flex">
       <span className="inline-flex items-center gap-1.5">
         <span className={cn("size-1.5 rounded-full", DOT[status.session])} />
-        <span className="text-gray-400">{status.label}</span>
+        <span className="font-semibold uppercase tracking-wider text-gray-400">{status.label}</span>
       </span>
       <span className="num">
-        {next.label} in {formatDuration(next.ms)}
+        {next.label} in <span className="text-gray-400">{formatDuration(next.ms)}</span>
       </span>
-      <span className="num hidden sm:inline">NYSE {nyTime} ET</span>
-      <span className="ml-auto hidden items-center gap-1 md:inline-flex">
-        <Keyboard className="size-3" /> Press <kbd className="num rounded border border-gray-600 px-1 text-gray-400">?</kbd> for shortcuts
+      <span className="ml-auto flex items-center gap-3">
+        {KEYS.map(([k, label]) => (
+          <span key={label} className="inline-flex items-center gap-1">
+            <kbd className="num rounded-sm bg-gray-700 px-1 text-[10px] font-semibold text-amber">{k}</kbd>
+            {label}
+          </span>
+        ))}
       </span>
     </footer>
   );

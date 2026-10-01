@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-export const OPEN_SEARCH_EVENT = "signalist:open-search";
-export const OPEN_TRADE_EVENT = "signalist:open-trade";
+export const OPEN_SEARCH_EVENT = "tickline:open-search";
+export const OPEN_TRADE_EVENT = "tickline:open-trade";
+export const OPEN_HELP_EVENT = "tickline:open-help";
 
 const GOTO: Record<string, { href: string; label: string }> = {
   d: { href: "/", label: "Dashboard" },
@@ -16,8 +17,8 @@ const GOTO: Record<string, { href: string; label: string }> = {
 };
 
 const SHORTCUTS: [string[], string][] = [
-  [["⌘", "K"], "Search symbols"],
-  [["/"], "Search symbols"],
+  [["⌘", "K"], "Command bar"],
+  [["/"], "Command bar"],
   [["T"], "New trade"],
   ...Object.entries(GOTO).map(([k, v]) => [["G", k.toUpperCase()], `Go to ${v.label}`] as [string[], string]),
   [["?"], "Show shortcuts"],
@@ -61,8 +62,13 @@ export default function KeyboardShortcuts() {
         setHelp((v) => !v);
       }
     };
+    const onHelp = () => setHelp(true);
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener(OPEN_HELP_EVENT, onHelp);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener(OPEN_HELP_EVENT, onHelp);
+    };
   }, [router]);
 
   return (

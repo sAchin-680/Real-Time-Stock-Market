@@ -1,9 +1,10 @@
+/** Primary navigation. `code` is the terminal mnemonic accepted by the command bar. */
 export const NAV_ITEMS = [
-    { href: '/', label: 'Dashboard' },
-    { href: '/portfolio', label: 'Portfolio' },
-    { href: '/watchlist', label: 'Watchlist' },
-    { href: '/alerts', label: 'Alerts' },
-    { href: '/markets', label: 'Markets' },
+    { href: '/', label: 'Dashboard', code: 'DASH', key: 'D' },
+    { href: '/portfolio', label: 'Portfolio', code: 'PORT', key: 'P' },
+    { href: '/watchlist', label: 'Watchlist', code: 'WL', key: 'W' },
+    { href: '/alerts', label: 'Alerts', code: 'ALRT', key: 'A' },
+    { href: '/markets', label: 'Markets', code: 'MKT', key: 'M' },
 ] as const;
 
 // Pragmatic email check for forms; the server re-validates.
