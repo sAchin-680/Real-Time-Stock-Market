@@ -30,6 +30,8 @@ const nextConfig: NextConfig = {
   // Self-contained server bundle for the Docker image; ignored by Vercel.
   output: "standalone",
   poweredByHeader: false,
+  // Hide the floating Next.js dev badge.
+  devIndicators: false,
   images: {
     remotePatterns: [{ protocol: "https", hostname: "static2.finnhub.io" }],
   },
