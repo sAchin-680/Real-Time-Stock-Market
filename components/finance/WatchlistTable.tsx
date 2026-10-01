@@ -9,10 +9,11 @@ import { LivePrice } from "@/components/finance/LivePrice";
 import { Badge, Delta, EmptyState, RangeBar, SymbolCell } from "@/components/finance/primitives";
 import AlertFormDialog from "@/components/finance/AlertFormDialog";
 import WatchlistButton from "@/components/WatchlistButton";
+import Sparkline from "@/components/finance/Sparkline";
 
 export default function WatchlistTable({ rows }: { rows: WatchlistRow[] }) {
   const symbols = useMemo(() => rows.map((r) => r.symbol), [rows]);
-  const { quotes } = useLiveQuotes(symbols);
+  const { quotes, history } = useLiveQuotes(symbols);
 
   if (!rows.length) {
     return (
@@ -32,6 +33,7 @@ export default function WatchlistTable({ rows }: { rows: WatchlistRow[] }) {
             <th>Company</th>
             <th className="text-right">Price</th>
             <th className="text-right">Change</th>
+            <th className="text-right">Live</th>
             <th className="text-right">Market cap</th>
             <th className="text-right">P/E</th>
             <th>52-week range</th>
@@ -53,6 +55,9 @@ export default function WatchlistTable({ rows }: { rows: WatchlistRow[] }) {
                 </td>
                 <td className="text-right">
                   <Delta value={q?.change ?? r.change} percent={q?.changePercent ?? r.changePercent} className="justify-end" />
+                </td>
+                <td className="text-right">
+                  <Sparkline points={history[r.symbol]} baseline={q?.prevClose} width={80} height={24} className="ml-auto" />
                 </td>
                 <td className="num text-right text-gray-400">{formatMarketCapMillions(r.marketCap)}</td>
                 <td className="num text-right text-gray-400">{r.peRatio ? formatNumber(r.peRatio, 1) : "—"}</td>

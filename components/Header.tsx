@@ -4,7 +4,8 @@ import { Plus } from "lucide-react";
 import UserDropdown from "@/components/UserDropDown";
 import SearchCommand from "@/components/SearchCommand";
 import MarketStatusBadge from "@/components/MarketStatusBadge";
-import TickerTape, { INDEX_PROXIES } from "@/components/layout/TickerTape";
+import TickerTape, { CRYPTO_PAIRS, INDEX_PROXIES } from "@/components/layout/TickerTape";
+import LiveIndicator from "@/components/layout/LiveIndicator";
 import TradeDialog from "@/components/finance/TradeDialog";
 import { Button } from "@/components/ui/button";
 import { searchStocks } from "@/lib/actions/finhub.actions";
@@ -13,8 +14,8 @@ import { getQuotes } from "@/lib/server/finnhub";
 
 const Header = async ({ user }: { user: User }) => {
   const [initialStocks, watchlist] = await Promise.all([searchStocks(), getWatchlistSymbols()]);
-  const tickerSymbols = [...new Set([...Object.keys(INDEX_PROXIES), ...watchlist])].slice(0, 24);
-  const tickerQuotes = await getQuotes(tickerSymbols);
+  const tickerSymbols = [...new Set([...Object.keys(INDEX_PROXIES), ...Object.keys(CRYPTO_PAIRS), ...watchlist])].slice(0, 30);
+  const tickerQuotes = await getQuotes(tickerSymbols.filter((s) => !s.includes(":")));
 
   return (
     <header className="sticky top-0 z-40 bg-gray-900/90 backdrop-blur supports-[backdrop-filter]:bg-gray-900/75">
@@ -27,6 +28,7 @@ const Header = async ({ user }: { user: User }) => {
           <SearchCommand initialStocks={initialStocks} watchlistSymbols={watchlist} />
         </div>
 
+        <LiveIndicator className="hidden sm:inline-flex" />
         <MarketStatusBadge className="hidden md:inline-flex" />
         <TradeDialog
           listenForShortcut

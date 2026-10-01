@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/lib/format';
 
 /** Price that briefly flashes green/red when it ticks. */
-export function LivePrice({ value, className, currency }: { value?: number; className?: string; currency?: string }) {
+export function LivePrice({ value, className, currency, plain }: { value?: number; className?: string; currency?: string; /** Number only, no currency symbol. */ plain?: boolean }) {
   const prev = useRef(value);
   const [flash, setFlash] = useState<'flash-up' | 'flash-down' | null>(null);
 
@@ -21,7 +21,7 @@ export function LivePrice({ value, className, currency }: { value?: number; clas
 
   return (
     <span className={cn('num rounded px-1 -mx-1', flash, className)}>
-      {formatCurrency(value, { currency: currency || 'USD' })}
+      {plain ? (value === undefined ? '—' : value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: value < 10 ? 4 : 2 })) : formatCurrency(value, { currency: currency || 'USD' })}
     </span>
   );
 }

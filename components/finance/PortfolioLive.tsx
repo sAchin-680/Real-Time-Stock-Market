@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 import { useLiveQuotes } from "@/hooks/useLiveQuotes";
 import { LivePrice } from "@/components/finance/LivePrice";
 import { Delta, KpiCard, Panel, SymbolCell, WeightBar } from "@/components/finance/primitives";
+import Sparkline from "@/components/finance/Sparkline";
+import SessionValueChart from "@/components/finance/SessionValueChart";
 
 type SortKey = "symbol" | "marketValue" | "dayChangePercent" | "unrealizedPnl" | "unrealizedPercent" | "weight";
 
@@ -18,6 +20,7 @@ const COLUMNS: { key: SortKey | null; label: string; align?: "right" }[] = [
   { key: null, label: "Shares", align: "right" },
   { key: null, label: "Avg cost", align: "right" },
   { key: null, label: "Price", align: "right" },
+  { key: null, label: "Live", align: "right" },
   { key: "dayChangePercent", label: "Today", align: "right" },
   { key: "marketValue", label: "Market value", align: "right" },
   { key: "unrealizedPnl", label: "Unrealized P&L", align: "right" },
@@ -34,7 +37,7 @@ export default function PortfolioLive({
   variant?: "full" | "compact";
 }) {
   const symbols = useMemo(() => initialHoldings.map((h) => h.symbol), [initialHoldings]);
-  const { quotes, updatedAt } = useLiveQuotes(symbols);
+  const { quotes, history, updatedAt } = useLiveQuotes(symbols);
   const { holdings, totals } = useMemo(() => applyLiveQuotes(initialHoldings, initialTotals, quotes), [initialHoldings, initialTotals, quotes]);
 
   const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: "marketValue", dir: -1 });
@@ -73,6 +76,8 @@ export default function PortfolioLive({
           hint={`incl. ${formatCurrency(realized, { signed: true, compact: Math.abs(realized) >= 1e5 })} realized & dividends`}
         />
       </div>
+
+      <SessionValueChart value={totals.marketValue} dayChange={totals.dayChange} />
 
       <Panel
         title={variant === "compact" ? "Top holdings" : "Holdings"}
@@ -120,6 +125,9 @@ export default function PortfolioLive({
                   <td className="text-right">
                     <LivePrice value={h.price} />
                     {h.stale && <span className="ml-1 text-[10px] text-gray-500" title="No live quote; showing cost">*</span>}
+                  </td>
+                  <td className="text-right">
+                    <Sparkline points={history[h.symbol]} baseline={quotes[h.symbol]?.prevClose} width={80} height={24} className="ml-auto" />
                   </td>
                   <td className="text-right">
                     <Delta kind="percent" percent={h.dayChangePercent} className="justify-end" />
