@@ -4,6 +4,9 @@ export const NAV_ITEMS = [
     // { href: '/watchlist', label: 'Watchlist' },
 ];
 
+// Pragmatic email check for forms; the server re-validates.
+export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 // Sign-up form select options
 export const INVESTMENT_GOALS = [
     { value: 'Growth', label: 'Growth' },
