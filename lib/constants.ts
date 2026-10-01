@@ -1,8 +1,10 @@
 export const NAV_ITEMS = [
     { href: '/', label: 'Dashboard' },
-    { href: '/search', label: 'Search' },
-    // { href: '/watchlist', label: 'Watchlist' },
-];
+    { href: '/portfolio', label: 'Portfolio' },
+    { href: '/watchlist', label: 'Watchlist' },
+    { href: '/alerts', label: 'Alerts' },
+    { href: '/markets', label: 'Markets' },
+] as const;
 
 // Pragmatic email check for forms; the server re-validates.
 export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
