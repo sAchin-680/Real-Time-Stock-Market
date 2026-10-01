@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import nodemailer, { type SendMailOptions } from 'nodemailer';
 import {
     NEWS_SUMMARY_EMAIL_TEMPLATE,
     STOCK_ALERT_LOWER_EMAIL_TEMPLATE,
@@ -41,7 +41,7 @@ export function renderTemplate(template: string, values: Record<string, string>,
     return out;
 }
 
-async function send(options: nodemailer.SendMailOptions) {
+async function send(options: SendMailOptions) {
     if (!isEmailConfigured()) {
         logger.warn('email.skipped_not_configured', { subject: options.subject });
         return false;
