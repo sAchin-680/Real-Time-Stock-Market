@@ -39,7 +39,7 @@ export default async function StockDetails({ params }: StockDetailsPageProps) {
   const { symbol, metrics: m, quote, position } = stock;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <StockHeader stock={stock} />
         <div className="flex flex-wrap gap-2">
@@ -49,19 +49,19 @@ export default async function StockDetails({ params }: StockDetailsPageProps) {
         </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-3">
-        <div className="space-y-6 xl:col-span-2">
+      <div className="grid gap-3 xl:grid-cols-3">
+        <div className="space-y-3 xl:col-span-2">
           <Panel bodyClassName="p-2">
             <TradingViewWidget scriptUrl={`${scriptUrl}advanced-chart.js`} config={CANDLE_CHART_WIDGET_CONFIG(symbol)} className="custom-chart" height={560} />
           </Panel>
-          <Panel title="Financials" bodyClassName="p-2">
+          <Panel title="Financials" code="FA" bodyClassName="p-2">
             <TradingViewWidget scriptUrl={`${scriptUrl}financials.js`} config={COMPANY_FINANCIALS_WIDGET_CONFIG(symbol)} height={464} />
           </Panel>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-3">
           {position && (
-            <Panel title="Your position" action={<Link href="/portfolio" className="text-xs font-medium text-gray-400 hover:text-gray-100">Portfolio →</Link>}>
+            <Panel title="Your position" code="POS" action={<Link href="/portfolio" className="text-xs font-medium text-gray-400 hover:text-gray-100">Portfolio →</Link>}>
               <dl className="divide-y divide-gray-600/50 px-4 md:px-5">
                 <Stat label="Shares" value={formatQuantity(position.quantity)} />
                 <Stat label="Average cost" value={formatCurrency(position.avgCost)} />
@@ -72,7 +72,7 @@ export default async function StockDetails({ params }: StockDetailsPageProps) {
             </Panel>
           )}
 
-          <Panel title="Key statistics">
+          <Panel title="Key statistics" code="DES">
             <dl className="divide-y divide-gray-600/50 px-4 md:px-5">
               <Stat label="Market cap" value={formatMarketCapMillions(stock.marketCap)} />
               <Stat label="P/E (TTM)" value={m.peTTM ? formatNumber(m.peTTM, 1) : "—"} />
@@ -90,7 +90,7 @@ export default async function StockDetails({ params }: StockDetailsPageProps) {
             </dl>
           </Panel>
 
-          <Panel title={`Alerts (${stock.alerts.length})`} action={<Link href="/alerts" className="text-xs font-medium text-gray-400 hover:text-gray-100">Manage →</Link>}>
+          <Panel title={`Alerts (${stock.alerts.length})`} code="ALRT" action={<Link href="/alerts" className="text-xs font-medium text-gray-400 hover:text-gray-100">Manage →</Link>}>
             {stock.alerts.length ? (
               <ul className="divide-y divide-gray-600/50">
                 {stock.alerts.map((a) => (
@@ -108,7 +108,7 @@ export default async function StockDetails({ params }: StockDetailsPageProps) {
             )}
           </Panel>
 
-          <Panel title="Technicals" bodyClassName="p-2">
+          <Panel title="Technicals" code="TECH" bodyClassName="p-2">
             <TradingViewWidget scriptUrl={`${scriptUrl}technical-analysis.js`} config={TECHNICAL_ANALYSIS_WIDGET_CONFIG(symbol)} height={400} />
           </Panel>
 

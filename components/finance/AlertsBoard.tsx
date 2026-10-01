@@ -10,7 +10,7 @@ import { describeAlert, distanceToTrigger } from "@/lib/finance/alerts";
 import { formatCurrency, formatPercent } from "@/lib/format";
 import type { AlertDTO } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { Badge, Delta, EmptyState, KpiCard } from "@/components/finance/primitives";
+import { Badge, Delta, EmptyState, KpiCard, PageHeader } from "@/components/finance/primitives";
 import AlertFormDialog from "@/components/finance/AlertFormDialog";
 import ConfirmDialog from "@/components/finance/ConfirmDialog";
 
@@ -35,7 +35,7 @@ function AlertCard({ alert }: { alert: AlertDTO }) {
     });
 
   return (
-    <li className={cn("panel p-4 transition-opacity md:p-5", !alert.active && "opacity-60")}>
+    <li className={cn("panel p-4 transition-opacity", !alert.active && "opacity-60")}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -147,24 +147,25 @@ export default function AlertsBoard({ alerts }: { alerts: AlertDTO[] }) {
     });
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="page-title">Alerts</h1>
-          <p className="page-subtitle">Price and daily-move alerts, evaluated every 5 minutes while the market is open.</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={checkNow} disabled={checking || !stats.active}>
-            {checking ? <Loader2 className="animate-spin" /> : <RefreshCw />} Check now
-          </Button>
-          <AlertFormDialog trigger={<Button className="btn-primary"><Bell /> New alert</Button>} />
-        </div>
-      </div>
+    <div className="space-y-3">
+      <PageHeader
+        code="ALRT"
+        title="Alerts"
+        description="Price and day-move triggers · evaluated every 5 minutes while the market is open · emailed when they fire"
+        actions={
+          <>
+            <Button variant="outline" onClick={checkNow} disabled={checking || !stats.active}>
+              {checking ? <Loader2 className="animate-spin" /> : <RefreshCw />} Check now
+            </Button>
+            <AlertFormDialog trigger={<Button className="btn-primary"><Bell /> New alert</Button>} />
+          </>
+        }
+      />
 
-      <div className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
-        <KpiCard label="Active" value={stats.active} />
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <KpiCard label="Active" value={stats.active} tone={stats.active ? "gain" : undefined} />
         <KpiCard label="Paused" value={stats.paused} />
-        <KpiCard label="Triggered today" value={stats.today} />
+        <KpiCard label="Triggered today" value={stats.today} tone={stats.today ? "amber" : undefined} />
         <KpiCard label="All-time triggers" value={stats.total} />
       </div>
 
@@ -177,7 +178,7 @@ export default function AlertsBoard({ alerts }: { alerts: AlertDTO[] }) {
               </button>
             ))}
           </div>
-          <ul className="grid gap-4 lg:grid-cols-2">
+          <ul className="grid gap-3 lg:grid-cols-2 2xl:grid-cols-3">
             {shown.map((a) => (
               <AlertCard key={a.id} alert={a} />
             ))}
