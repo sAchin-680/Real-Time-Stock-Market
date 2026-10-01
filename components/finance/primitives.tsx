@@ -224,7 +224,7 @@ export function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 px-6 py-14 text-center">
-      {icon && <div className="flex size-11 items-center justify-center rounded-md border border-gray-600 bg-gray-700 text-amber">{icon}</div>}
+      {icon && <div className="flex size-11 items-center justify-center rounded-md border border-gray-600 bg-gray-700 text-gray-400">{icon}</div>}
       <h3 className="text-base font-semibold text-gray-100">{title}</h3>
       {description && <p className="max-w-md text-sm text-gray-500">{description}</p>}
       {action && <div className="mt-2 flex flex-wrap justify-center gap-2">{action}</div>}
