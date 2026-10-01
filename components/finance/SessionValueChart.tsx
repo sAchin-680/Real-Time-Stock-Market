@@ -12,7 +12,7 @@ interface Point {
 }
 
 const MAX_POINTS = 720;
-const storageKey = () => `signalist:session-value:${getMarketStatus().tradingDate}`;
+const storageKey = () => `tickline:session-value:${getMarketStatus().tradingDate}`;
 
 /**
  * Portfolio value recorded live for this trading day (kept per browser in

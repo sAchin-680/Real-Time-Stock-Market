@@ -18,7 +18,7 @@ export const transporter = nodemailer.createTransport({
     },
 });
 
-const fromName = () => process.env.EMAIL_FROM_NAME || 'Signalist';
+const fromName = () => process.env.EMAIL_FROM_NAME || 'Tickline';
 const from = (suffix = '') => `"${fromName()}${suffix}" <${process.env.NODEMAILER_EMAIL}>`;
 
 /** Absolute app URL with trailing slash, used for links in emails. */

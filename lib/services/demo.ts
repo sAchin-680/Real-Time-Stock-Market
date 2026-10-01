@@ -7,10 +7,12 @@ import { Transaction } from '@/database/models/transaction.model';
 import { Watchlist } from '@/database/models/watchlist.models';
 import { logger } from '@/lib/logger';
 
-export const DEMO_EMAIL_DOMAIN = 'demo.signalist.app';
+export const DEMO_EMAIL_DOMAIN = 'demo.tickline.app';
+/** Accounts created before the rebrand still count as demo users. */
+const DEMO_DOMAINS = [DEMO_EMAIL_DOMAIN, 'demo.signalist.app'];
 export const DEMO_TTL_HOURS = 24;
 
-export const isDemoEmail = (email: string) => email.toLowerCase().endsWith(`@${DEMO_EMAIL_DOMAIN}`);
+export const isDemoEmail = (email: string) => DEMO_DOMAINS.some((d) => email.toLowerCase().endsWith(`@${d}`));
 
 export function createDemoCredentials() {
   const id = randomBytes(6).toString('hex');
@@ -77,7 +79,7 @@ export async function purgeExpiredDemoUsers(): Promise<number> {
   const cutoff = new Date(Date.now() - DEMO_TTL_HOURS * 3600 * 1000);
   const users = await db
     .collection('user')
-    .find({ email: { $regex: `@${DEMO_EMAIL_DOMAIN.replace(/\./g, '\\.')}$` }, createdAt: { $lt: cutoff } }, { projection: { _id: 1 } })
+    .find({ email: { $regex: `@(${DEMO_DOMAINS.map((d) => d.replace(/\./g, '\\.')).join('|')})$` }, createdAt: { $lt: cutoff } }, { projection: { _id: 1 } })
     .toArray();
   if (!users.length) return 0;
 
