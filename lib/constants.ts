@@ -1,9 +1,10 @@
+/** Primary navigation. `code` is the terminal mnemonic accepted by the command bar. */
 export const NAV_ITEMS = [
-    { href: '/', label: 'Dashboard' },
-    { href: '/portfolio', label: 'Portfolio' },
-    { href: '/watchlist', label: 'Watchlist' },
-    { href: '/alerts', label: 'Alerts' },
-    { href: '/markets', label: 'Markets' },
+    { href: '/', label: 'Dashboard', code: 'DASH', key: 'D' },
+    { href: '/portfolio', label: 'Portfolio', code: 'PORT', key: 'P' },
+    { href: '/watchlist', label: 'Watchlist', code: 'WL', key: 'W' },
+    { href: '/alerts', label: 'Alerts', code: 'ALRT', key: 'A' },
+    { href: '/markets', label: 'Markets', code: 'MKT', key: 'M' },
 ] as const;
 
 // Pragmatic email check for forms; the server re-validates.
@@ -49,15 +50,15 @@ export const MARKET_OVERVIEW_WIDGET_CONFIG = {
     largeChartUrl: '', // link to a large chart if needed
     isTransparent: true, // makes background transparent
     showFloatingTooltip: true, // show tooltip on hover
-    plotLineColorGrowing: '#0FEDBE', // line color when price goes up
-    plotLineColorFalling: '#0FEDBE', // line color when price falls
+    plotLineColorGrowing: '#4cc38a', // line color when price goes up
+    plotLineColorFalling: '#f2555a', // line color when price falls
     gridLineColor: 'rgba(240, 243, 250, 0)', // grid line color
-    scaleFontColor: '#DBDBDB', // font color for scale
-    belowLineFillColorGrowing: 'rgba(41, 98, 255, 0.12)', // fill under line when growing
-    belowLineFillColorFalling: 'rgba(41, 98, 255, 0.12)', // fill under line when falling
-    belowLineFillColorGrowingBottom: 'rgba(41, 98, 255, 0)',
-    belowLineFillColorFallingBottom: 'rgba(41, 98, 255, 0)',
-    symbolActiveColor: 'rgba(15, 237, 190, 0.05)', // highlight color for active symbol
+    scaleFontColor: '#7a7a83', // font color for scale
+    belowLineFillColorGrowing: 'rgba(237, 237, 239, 0.06)', // fill under line when growing
+    belowLineFillColorFalling: 'rgba(237, 237, 239, 0.06)', // fill under line when falling
+    belowLineFillColorGrowingBottom: 'rgba(237, 237, 239, 0)',
+    belowLineFillColorFallingBottom: 'rgba(237, 237, 239, 0)',
+    symbolActiveColor: 'rgba(237, 237, 239, 0.05)', // highlight color for active symbol
     tabs: [
         {
             title: 'Financial',
@@ -93,7 +94,7 @@ export const MARKET_OVERVIEW_WIDGET_CONFIG = {
         },
     ],
     support_host: 'https://www.tradingview.com', // TradingView host
-    backgroundColor: '#141414', // background color
+    backgroundColor: '#111113', // background color
     width: '100%', // full width
     height: 600, // height in px
     showSymbolLogo: true, // show logo next to symbols
@@ -138,7 +139,7 @@ export const MARKET_DATA_WIDGET_CONFIG = {
     showSymbolLogo: true,
     colorTheme: 'dark',
     isTransparent: false,
-    backgroundColor: '#0F0F0F',
+    backgroundColor: '#111113',
     symbolsGroups: [
         {
             name: 'Financial',
@@ -200,8 +201,8 @@ export const CANDLE_CHART_WIDGET_CONFIG = (symbol: string) => ({
     symbol: symbol.toUpperCase(),
     theme: 'dark',
     timezone: 'Etc/UTC',
-    backgroundColor: '#141414',
-    gridColor: '#141414',
+    backgroundColor: '#111113',
+    gridColor: '#111113',
     watchlist: [],
     withdateranges: false,
     compareSymbols: [],
@@ -226,8 +227,8 @@ export const BASELINE_WIDGET_CONFIG = (symbol: string) => ({
     symbol: symbol.toUpperCase(),
     theme: 'dark',
     timezone: 'Etc/UTC',
-    backgroundColor: '#141414',
-    gridColor: '#141414',
+    backgroundColor: '#111113',
+    gridColor: '#111113',
     watchlist: [],
     withdateranges: false,
     compareSymbols: [],

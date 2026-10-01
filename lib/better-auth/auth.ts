@@ -5,7 +5,7 @@ import { MongoClient } from "mongodb";
 
 // The client connects lazily on first query, so constructing it at import time
 // is safe during `next build` (where no database is reachable).
-const client = new MongoClient(process.env.MONGODB_URI?.trim() || "mongodb://127.0.0.1:27017/signalist", {
+const client = new MongoClient(process.env.MONGODB_URI?.trim() || "mongodb://127.0.0.1:27017/tickline", {
     maxPoolSize: 10,
     serverSelectionTimeoutMS: 8_000,
 });

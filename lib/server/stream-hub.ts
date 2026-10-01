@@ -152,8 +152,8 @@ class StreamHub {
 }
 
 declare global {
-  var __signalistStreamHub: StreamHub | undefined;
+  var __ticklineStreamHub: StreamHub | undefined;
 }
 
 /** Survives dev hot reloads so we never open duplicate upstream sockets. */
-export const streamHub: StreamHub = (globalThis.__signalistStreamHub ??= new StreamHub());
+export const streamHub: StreamHub = (globalThis.__ticklineStreamHub ??= new StreamHub());

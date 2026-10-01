@@ -58,7 +58,8 @@ const SignUp = () => {
 
   return (
     <>
-      <h1 className="form-title">Sign Up & Personalize</h1>
+      <h1 className="form-title">Create your workspace</h1>
+      <p className="mb-6 text-sm text-gray-500">Free. Your profile tailors news, digests and alerts.</p>
       <div className="mb-6">
         <DemoButton />
       </div>
@@ -142,9 +143,9 @@ const SignUp = () => {
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="yellow-btn w-full mt-5"
+          className="yellow-btn mt-2 w-full"
         >
-          {isSubmitting ? "Creating Account" : "Start Your Investing Journey"}
+          {isSubmitting ? "Creating workspace…" : "Create workspace"}
         </Button>
 
         <FooterLink

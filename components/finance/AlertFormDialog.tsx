@@ -134,7 +134,7 @@ export default function AlertFormDialog({
           {threshold > 0 && (
             <p className="rounded-lg bg-gray-900 px-4 py-3 text-sm text-gray-400">
               Notify me when <span className="font-semibold text-gray-100">{form.symbol || "the stock"}</span>:{" "}
-              <span className="num text-yellow-400">{describeAlert(form.condition, threshold)}</span>
+              <span className="num text-gray-100">{describeAlert(form.condition, threshold)}</span>
               {currentPrice ? <span className="text-gray-500"> · now {formatCurrency(currentPrice)}</span> : null}
             </p>
           )}
@@ -142,7 +142,7 @@ export default function AlertFormDialog({
 
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button type="submit" disabled={pending} className="bg-yellow-400 text-gray-900 hover:bg-yellow-500">
+            <Button type="submit" disabled={pending} className="btn-primary">
               {pending && <Loader2 className="animate-spin" />} {alert ? "Save changes" : "Create alert"}
             </Button>
           </DialogFooter>

@@ -15,7 +15,7 @@ export async function GET() {
     ...rows.map((t) => [t.executedAt.slice(0, 10), t.symbol, t.side, t.quantity, t.price, t.fees, t.total.toFixed(2), t.notes]),
   ]);
 
-  const filename = `signalist-transactions-${new Date().toISOString().slice(0, 10)}.csv`;
+  const filename = `tickline-transactions-${new Date().toISOString().slice(0, 10)}.csv`;
   return new NextResponse(`﻿${csv}\r\n`, {
     headers: {
       'Content-Type': 'text/csv; charset=utf-8',

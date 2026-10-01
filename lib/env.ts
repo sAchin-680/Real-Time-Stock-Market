@@ -17,7 +17,7 @@ const envSchema = z.object({
   GEMINI_API_KEY: optional,
   NODEMAILER_EMAIL: optional,
   NODEMAILER_PASSWORD: optional,
-  EMAIL_FROM_NAME: z.string().default('Signalist'),
+  EMAIL_FROM_NAME: z.string().default('Tickline'),
   LOG_LEVEL: optional,
 });
 

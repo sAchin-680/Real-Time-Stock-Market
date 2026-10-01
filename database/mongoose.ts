@@ -14,7 +14,7 @@ if (!cached) {
     cached = global.mongooseCache = { conn: null, promise: null };
 }
 
-const LOCAL_FALLBACK_URI = 'mongodb://127.0.0.1:27017/signalist';
+const LOCAL_FALLBACK_URI = 'mongodb://127.0.0.1:27017/tickline';
 
 /** Production must be configured explicitly; local dev falls back to a local MongoDB. */
 const resolveMongoUri = () => {

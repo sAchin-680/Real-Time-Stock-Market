@@ -72,7 +72,7 @@ export default function WatchlistTable({ rows }: { rows: WatchlistRow[] }) {
                       company={r.company}
                       currentPrice={price}
                       trigger={
-                        <button type="button" aria-label={`Create alert for ${r.symbol}`} title="Create alert" className="flex size-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-700 hover:text-yellow-400">
+                        <button type="button" aria-label={`Create alert for ${r.symbol}`} title="Create alert" className="flex size-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-700 hover:text-gray-100">
                           <Bell className="size-4" />
                         </button>
                       }

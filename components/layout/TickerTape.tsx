@@ -33,7 +33,7 @@ function Item({ symbol, quote, tick }: { symbol: string; quote?: LiveQuote; tick
   const crypto = symbol in CRYPTO_PAIRS;
   const body = (
     <>
-      <span className="font-semibold text-gray-400 group-hover:text-yellow-400">{labelOf(symbol)}</span>
+      <span className="font-semibold text-gray-400 group-hover:text-white">{labelOf(symbol)}</span>
       <LivePrice value={quote?.price} plain className={cn("text-gray-100", tick === 1 && "text-gain", tick === -1 && "text-loss")} />
       {quote && quote.prevClose > 0 && (
         <span className={cn("num inline-flex items-center", trend === "up" && "text-gain", trend === "down" && "text-loss", trend === "flat" && "text-gray-500")}>
