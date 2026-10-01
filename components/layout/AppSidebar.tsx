@@ -14,7 +14,7 @@ export default function AppSidebar({ isDemo }: { isDemo?: boolean }) {
   const pathname = usePathname();
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
+    <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col self-start border-r border-sidebar-border bg-sidebar lg:flex">
       <Link href="/" className="flex h-16 items-center px-6">
         <Image src="/assets/icons/logo.svg" alt="Signalist" width={140} height={32} className="h-7 w-auto" priority />
       </Link>
