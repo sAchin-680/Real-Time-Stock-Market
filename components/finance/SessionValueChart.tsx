@@ -19,7 +19,7 @@ const storageKey = () => `signalist:session-value:${getMarketStatus().tradingDat
  * sessionStorage). Baseline = value at the previous close, so the line reads as
  * today's P&L. Hover shows the value at any moment.
  */
-export default function SessionValueChart({ value, dayChange }: { value: number; dayChange: number }) {
+export default function SessionValueChart({ value, dayChange, height = 140 }: { value: number; dayChange: number; height?: number }) {
   const [points, setPoints] = useState<Point[]>([]);
   const [hover, setHover] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -47,7 +47,7 @@ export default function SessionValueChart({ value, dayChange }: { value: number;
   }, [value]);
 
   const W = 1000;
-  const H = 140;
+  const H = height;
   const geo = useMemo(() => {
     if (points.length < 2) return null;
     const vs = points.map((p) => p.v);
@@ -60,7 +60,7 @@ export default function SessionValueChart({ value, dayChange }: { value: number;
     const y = (v: number) => 8 + (1 - (v - min) / span) * (H - 16);
     const line = points.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join("");
     return { line, area: `${line}L${W},${H}L0,${H}Z`, baseY: y(baseline), x, y };
-  }, [points, baseline]);
+  }, [points, baseline, H]);
 
   const up = value >= baseline;
   const color = up ? "var(--gain-fill)" : "var(--loss-fill)";
@@ -80,13 +80,13 @@ export default function SessionValueChart({ value, dayChange }: { value: number;
   const pnl = shown - baseline;
 
   return (
-    <section className="panel overflow-hidden">
-      <header className="flex flex-wrap items-end justify-between gap-3 px-4 pt-4 md:px-5">
+    <section className="panel flex h-full flex-col overflow-hidden">
+      <header className="flex flex-wrap items-end justify-between gap-3 px-4 pt-3">
         <div>
-          <p className="panel-title">Today&apos;s value</p>
+          <p className="panel-title">Intraday value</p>
           <div className="mt-1 flex flex-wrap items-baseline gap-x-3">
-            <span className="num text-2xl font-semibold text-gray-100">{formatCurrency(shown)}</span>
-            <span className={cn("num text-sm", pnl >= 0 ? "text-gain" : "text-loss")}>
+            <span className="num text-xl font-semibold text-gray-100">{formatCurrency(shown)}</span>
+            <span className={cn("num text-[13px]", pnl > 0.004 ? "text-gain" : pnl < -0.004 ? "text-loss" : "text-gray-500")}>
               {formatCurrency(pnl, { signed: true })} today
             </span>
             {active && <span className="num text-xs text-gray-500">{new Date(active.t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>}
@@ -94,7 +94,7 @@ export default function SessionValueChart({ value, dayChange }: { value: number;
         </div>
         <LiveIndicator />
       </header>
-      <div className="relative mt-2 h-[140px]">
+      <div className="relative mt-2 flex-1" style={{ minHeight: geo ? H : 64 }}>
         {geo ? (
           <svg
             ref={svgRef}
@@ -130,7 +130,9 @@ export default function SessionValueChart({ value, dayChange }: { value: number;
           />
         )}
         {!geo && (
-          <div className="flex h-full items-center justify-center text-sm text-gray-500">Recording live value — the chart fills in as prices tick.</div>
+          <div className="flex h-full items-center justify-center gap-2 border-t border-dashed border-gray-600/70 text-[12px] text-gray-500">
+            <span className="size-1.5 animate-pulse rounded-full bg-gray-500" /> Recording intraday value — the line draws as prices tick.
+          </div>
         )}
       </div>
     </section>
