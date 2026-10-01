@@ -14,9 +14,26 @@ if (!cached) {
     cached = global.mongooseCache = { conn: null, promise: null };
 }
 
+const LOCAL_FALLBACK_URI = 'mongodb://127.0.0.1:27017/signalist';
+
+/** Production must be configured explicitly; local dev falls back to a local MongoDB. */
+const resolveMongoUri = () => {
+    const uri = process.env.MONGODB_URI?.trim();
+    if (uri) return uri;
+    if (process.env.NODE_ENV === 'production') {
+        throw new Error(
+            'MONGODB_URI is not set. Add it to your environment (e.g. Vercel → Project → Settings → Environment Variables).'
+        );
+    }
+    logger.warn('database.using_local_fallback', {
+        uri: LOCAL_FALLBACK_URI,
+        hint: 'Copy .env.example to .env.local and set MONGODB_URI, or run `docker compose up mongo`.',
+    });
+    return LOCAL_FALLBACK_URI;
+};
+
 export const connectToDatabase = async () => {
-    const uri = process.env.MONGODB_URI;
-    if (!uri) throw new Error('MONGODB_URI must be set within .env');
+    const uri = resolveMongoUri();
 
     if (cached.conn) return cached.conn;
 
