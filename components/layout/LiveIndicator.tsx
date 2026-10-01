@@ -5,7 +5,7 @@ import { useStreamStatus } from "@/hooks/useLiveQuotes";
 import { cn } from "@/lib/utils";
 
 const LABEL = {
-  idle: "Idle",
+  idle: "Connecting",
   connecting: "Connecting",
   live: "Live",
   polling: "Delayed",
@@ -23,7 +23,7 @@ export default function LiveIndicator({ className }: { className?: string }) {
 
   const age = lastUpdate ? Math.max(0, Math.round((Date.now() - lastUpdate) / 1000)) : null;
   const tone =
-    status === "live" ? "text-gain" : status === "polling" || status === "connecting" ? "text-amber" : "text-gray-500";
+    status === "live" ? "text-gain" : status === "polling" || status === "connecting" || status === "idle" ? "text-amber" : "text-gray-500";
 
   return (
     <span
