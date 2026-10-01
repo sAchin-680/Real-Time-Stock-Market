@@ -8,10 +8,12 @@ import { logger } from "@/lib/logger";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/server/session";
 import { emailSchema } from "@/lib/validation";
+import { createDemoCredentials, isDemoEmail, seedDemoData } from "@/lib/services/demo";
 
 type AuthResult = { success: true } | { success: false; error: string };
 
 const authLimiter = createRateLimiter({ limit: 10, windowMs: 10 * 60 * 1000 });
+const demoLimiter = createRateLimiter({ limit: 5, windowMs: 60 * 60 * 1000 });
 
 const authErrorMessage = (e: unknown, fallback: string) =>
     e instanceof APIError && e.message ? e.message : fallback;
@@ -28,6 +30,7 @@ async function guard(email: string): Promise<string | null> {
 export const signUpWithEmail = async ({ email, password, fullName, country, investmentGoals, riskTolerance, preferredIndustry }: SignUpFormData): Promise<AuthResult> => {
     const blocked = await guard(email);
     if (blocked) return { success: false, error: blocked };
+    if (isDemoEmail(email)) return { success: false, error: 'This email domain is reserved' };
 
     try {
         await auth.api.signUpEmail({ body: { email, password, name: fullName.trim() } });
@@ -59,6 +62,24 @@ export const signInWithEmail = async ({ email, password }: SignInFormData): Prom
     } catch (e) {
         logger.info('auth.sign_in_failed', { reason: e instanceof APIError ? e.message : 'unknown' });
         return { success: false, error: authErrorMessage(e, 'Invalid email or password') };
+    }
+}
+
+/** Creates a private, short-lived demo account pre-loaded with sample data and signs into it. */
+export const signInAsDemo = async (): Promise<AuthResult> => {
+    const ip = await getClientIp();
+    if (!demoLimiter.check(ip).allowed) {
+        return { success: false, error: 'Demo limit reached for now. Please try again later or create an account.' };
+    }
+
+    try {
+        const { email, password, name } = createDemoCredentials();
+        const res = await auth.api.signUpEmail({ body: { email, password, name } });
+        await seedDemoData(res.user.id);
+        return { success: true };
+    } catch (e) {
+        logger.error('auth.demo_failed', { error: e });
+        return { success: false, error: 'Could not start the demo. Please try again.' };
     }
 }
 

@@ -3,6 +3,7 @@ import 'server-only';
 import { connectToDatabase } from '@/database/mongoose';
 import { Watchlist } from '@/database/models/watchlist.models';
 import { logger } from '@/lib/logger';
+import { isDemoEmail } from '@/lib/services/demo';
 
 /**
  * Background-job helpers. These intentionally live outside 'use server' files:
@@ -29,7 +30,7 @@ export async function getAllUsersForNewsEmail(): Promise<UserContact[]> {
       .toArray();
 
     return users
-      .filter((user) => user.email && user.name)
+      .filter((user) => user.email && user.name && !isDemoEmail(user.email))
       .map((user) => ({ id: user.id || user._id?.toString() || '', email: user.email, name: user.name }));
   } catch (e) {
     logger.error('users.fetch_for_news_failed', { error: e });
@@ -44,7 +45,7 @@ export async function getUsersByIds(ids: readonly string[]): Promise<Record<stri
   const users = await (await usersCollection())
     .find({ _id: { $in: objectIds } }, { projection: { _id: 1, email: 1, name: 1 } })
     .toArray();
-  return Object.fromEntries(users.map((u) => [u._id.toString(), { id: u._id.toString(), email: u.email, name: u.name }]));
+  return Object.fromEntries(users.filter((u) => u.email && !isDemoEmail(u.email)).map((u) => [u._id.toString(), { id: u._id.toString(), email: u.email, name: u.name }]));
 }
 
 export async function getWatchlistSymbolsByEmail(email: string): Promise<string[]> {
