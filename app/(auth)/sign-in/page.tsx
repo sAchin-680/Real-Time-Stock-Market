@@ -46,7 +46,8 @@ const SignInForm = () => {
 
   return (
     <>
-      <h1 className="form-title">Welcome back</h1>
+      <h1 className="form-title">Sign in to Tickline</h1>
+      <p className="mb-6 text-sm text-gray-500">Welcome back — your positions are streaming.</p>
       <div className="mb-6">
         <DemoButton />
       </div>
@@ -80,14 +81,14 @@ const SignInForm = () => {
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="yellow-btn w-full mt-5"
+          className="yellow-btn mt-2 w-full"
         >
-          {isSubmitting ? "Signing In" : "Sign In"}
+          {isSubmitting ? "Signing in…" : "Sign in"}
         </Button>
 
         <FooterLink
           text="Don't have an account?"
-          linkText="Create an account"
+          linkText="Create a workspace"
           href="/sign-up"
         />
       </form>
