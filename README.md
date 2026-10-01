@@ -38,7 +38,9 @@ Live P&L streamed tick by tick, FIFO cost basis, holdings heatmap, P&L attributi
 | **Alerts** | Price above/below and day-move up/down conditions, once or daily, pause/resume, edit, trigger history, "check now" |
 | **Stock page** | Live quote header (O/H/L/prev close), your position, key statistics (beta, EPS, yield, margins, ROE), candlestick chart, technicals, financials |
 | **Markets** | Index overview, sector heatmap, quotes and top stories |
-| **Platform** | Market-hours engine (NYSE holidays and early closes), keyboard shortcuts, demo accounts, email notifications, health endpoint |
+| **Accounts** | Email/password or Continue with Google / Apple / Microsoft (each enabled when configured), one-click demo, export my data (JSON), delete my account |
+| **Legal** | Terms of Service, Privacy Policy and Risk & Data Disclaimer pages; strictly necessary cookies only |
+| **Platform** | Market-hours engine (NYSE holidays and early closes), keyboard shortcuts, email notifications, health endpoint, robots.txt and sitemap |
 
 ### Keyboard shortcuts
 
@@ -149,6 +151,10 @@ docker compose up --build    # app :3000 · MongoDB · Inngest dev server :8288
 | `FINNHUB_API_KEY` | ✅ for live data | Quotes, fundamentals, news and the trade stream (server-side only) |
 | `INNGEST_EVENT_KEY` / `INNGEST_SIGNING_KEY` | production jobs | Added automatically by the Inngest Vercel integration |
 | `NODEMAILER_EMAIL` / `NODEMAILER_PASSWORD` | for emails | Gmail address and [app password](https://support.google.com/accounts/answer/185833) |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | optional | "Continue with Google" — redirect URI `<BETTER_AUTH_URL>/api/auth/callback/google` |
+| `APPLE_CLIENT_ID` / `APPLE_CLIENT_SECRET` | optional | "Continue with Apple" — Services ID + signed client-secret JWT; return URL `/api/auth/callback/apple` |
+| `MICROSOFT_CLIENT_ID` / `MICROSOFT_CLIENT_SECRET` | optional | "Continue with Microsoft" — Entra app; redirect URI `/api/auth/callback/microsoft` (`MICROSOFT_TENANT_ID` defaults to `common`) |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | optional | Contact shown in the Privacy Policy and Terms |
 | `GEMINI_API_KEY` | optional | Personalized welcome emails and daily digests |
 | `EMAIL_FROM_NAME` | optional | Sender name (default `Tickline`) |
 | `LOG_LEVEL` | optional | `debug` · `info` · `warn` · `error` |
@@ -172,6 +178,8 @@ docker compose up --build    # app :3000 · MongoDB · Inngest dev server :8288
 | `GET /api/quotes?symbols=AAPL,MSFT` | session | Batched quotes (max 50), rate limited, plus market status |
 | `GET /api/stream?symbols=AAPL,BINANCE:BTCUSDT` | session | Server-Sent Events: `ticks` events with `{s, p, t, v}` |
 | `GET /api/portfolio/export` | session | Transactions as CSV |
+| `GET /api/account/export` | session | Everything stored about the user, as JSON |
+| `/api/auth/*` | public | Better Auth endpoints (OAuth redirects and callbacks) |
 | `/api/inngest` | signed | Inngest function endpoint |
 
 **CSV import format** (header row required, any column order):
