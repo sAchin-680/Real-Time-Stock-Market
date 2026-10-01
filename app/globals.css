@@ -79,37 +79,46 @@
 }
 
 .dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+  --background: #050505;
+  --foreground: #e7ecee;
+  --card: #141414;
+  --card-foreground: #e7ecee;
+  --popover: #141414;
+  --popover-foreground: #e7ecee;
+  --primary: #fdd458;
+  --primary-foreground: #0b0b0b;
+  --secondary: #212328;
+  --secondary-foreground: #e7ecee;
+  --muted: #212328;
+  --muted-foreground: #9095a1;
+  --accent: #212328;
+  --accent-foreground: #f3f4f6;
+  --destructive: #ff495b;
+  --border: #30333a;
+  --input: #30333a;
+  --ring: #e8ba40;
+  --chart-1: #3987e5;
+  --chart-2: #12a883;
+  --chart-3: #e5484d;
+  --chart-4: #c98500;
+  --chart-5: #9085e9;
+  --sidebar: #0b0b0c;
+  --sidebar-foreground: #ccdadc;
+  --sidebar-primary: #fdd458;
+  --sidebar-primary-foreground: #0b0b0b;
+  --sidebar-accent: #1b1c20;
+  --sidebar-accent-foreground: #f3f4f6;
+  --sidebar-border: #1f2126;
+  --sidebar-ring: #e8ba40;
+
+  /* Finance semantics. Text tones are bright for legibility; fills are
+     validated for the dark chart surface (lightness band + CVD separation). */
+  --gain: #0fedbe;
+  --loss: #ff495b;
+  --gain-fill: #12a883;
+  --loss-fill: #e5484d;
+  --viz-bar: #3987e5;
+  --viz-track: #212328;
 }
 
 /* === CUSTOM COLOR THEME === */
@@ -130,6 +139,13 @@
   --color-red-500: #FF495B;
   --color-orange-500: #FF8243;
   --color-purple-500: #D13BFF;
+
+  --color-gain: var(--gain);
+  --color-loss: var(--loss);
+  --color-gain-fill: var(--gain-fill);
+  --color-loss-fill: var(--loss-fill);
+  --color-viz-bar: var(--viz-bar);
+  --color-viz-track: var(--viz-track);
 }
 
 @layer base {
@@ -144,6 +160,42 @@
 @layer utilities {
   .container {
     @apply mx-auto max-w-screen-2xl px-4 md:px-6 lg:px-8;
+  }
+  .num {
+    @apply font-mono tabular-nums tracking-tight;
+  }
+  .panel {
+    @apply rounded-xl border border-gray-600/70 bg-gray-800;
+  }
+  .panel-header {
+    @apply flex items-center justify-between gap-3 border-b border-gray-600/60 px-4 py-3 md:px-5;
+  }
+  .panel-title {
+    @apply text-sm font-semibold uppercase tracking-wider text-gray-400;
+  }
+  .page-title {
+    @apply text-2xl md:text-3xl font-semibold text-gray-100 tracking-tight;
+  }
+  .page-subtitle {
+    @apply text-sm text-gray-500 mt-1;
+  }
+  .data-table {
+    @apply w-full text-sm;
+  }
+  .data-table th {
+    @apply px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap first:pl-4 md:first:pl-5 last:pr-4 md:last:pr-5;
+  }
+  .data-table td {
+    @apply px-3 py-3 text-gray-100 whitespace-nowrap first:pl-4 md:first:pl-5 last:pr-4 md:last:pr-5;
+  }
+  .data-table tbody tr {
+    @apply border-t border-gray-600/50 transition-colors hover:bg-gray-700/40;
+  }
+  .text-gain {
+    color: var(--gain);
+  }
+  .text-loss {
+    color: var(--loss);
   }
   .yellow-btn {
     @apply h-12 cursor-pointer bg-gradient-to-b from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-gray-950 font-medium text-base rounded-lg shadow-lg disabled:opacity-50;
@@ -376,6 +428,20 @@
   .alert-delete-btn {
     @apply text-gray-400 rounded-full hover:bg-red-600/15 bg-transparent cursor-pointer transition-colors;
   }
+}
+
+@keyframes flash-up {
+  from { background-color: color-mix(in srgb, var(--gain) 22%, transparent); }
+  to { background-color: transparent; }
+}
+@keyframes flash-down {
+  from { background-color: color-mix(in srgb, var(--loss) 22%, transparent); }
+  to { background-color: transparent; }
+}
+.flash-up { animation: flash-up 1.2s ease-out; }
+.flash-down { animation: flash-down 1.2s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .flash-up, .flash-down { animation: none; }
 }
 
 /* Market News Component Styles */

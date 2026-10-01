@@ -1,45 +1,30 @@
 "use client";
 
-import { NAV_ITEMS } from "@/lib/constants";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import SearchCommand from "@/components/SearchCommand";
+import { NAV_ITEMS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
+import { NAV_ICONS } from "@/components/layout/nav-icons";
+import { isNavActive } from "@/components/layout/AppSidebar";
 
-const NavItems = ({
-  initialStocks,
-}: {
-  initialStocks: StockWithWatchlistStatus[];
-}) => {
+/** Compact navigation used inside the mobile user menu. */
+const NavItems = () => {
   const pathname = usePathname();
 
-  const isActive = (path: string) => {
-    if (path === "/") return pathname === "/";
-
-    return pathname.startsWith(path);
-  };
-
   return (
-    <ul className="flex flex-col sm:flex-row p-2 gap-3 sm:gap-10 font-medium">
+    <ul className="flex flex-col gap-1 p-1 font-medium">
       {NAV_ITEMS.map(({ href, label }) => {
-        if (label === "Search")
-          return (
-            <li key="search-trigger">
-              <SearchCommand
-                renderAs="text"
-                label="Search"
-                initialStocks={initialStocks}
-              />
-            </li>
-          );
-
+        const Icon = NAV_ICONS[href];
         return (
           <li key={href}>
             <Link
               href={href}
-              className={`hover:text-yellow-500 transition-colors ${
-                isActive(href) ? "text-gray-100" : ""
-              }`}
+              className={cn(
+                "flex items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors hover:text-yellow-400",
+                isNavActive(pathname, href) ? "text-gray-100" : "text-gray-500"
+              )}
             >
+              <Icon className="size-4" />
               {label}
             </Link>
           </li>

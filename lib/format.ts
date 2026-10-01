@@ -1,5 +1,8 @@
 const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 
+/** Collapses floating-point dust (e.g. -0.000001) so it never renders as "-$0.00". */
+const clean = (v: number, digits: number) => (Math.abs(v) < 0.5 * 10 ** -digits ? 0 : v);
+
 const currencyFormatters = new Map<string, Intl.NumberFormat>();
 const getCurrencyFormatter = (currency: string, compact: boolean) => {
   const key = `${currency}:${compact}`;
@@ -22,6 +25,7 @@ export function formatCurrency(
   { currency = 'USD', compact = false, signed = false }: { currency?: string; compact?: boolean; signed?: boolean } = {}
 ): string {
   if (!isNum(value)) return '—';
+  value = clean(value, 2);
   const formatted = getCurrencyFormatter(currency, compact).format(Math.abs(value));
   if (value < 0) return `-${formatted}`;
   if (signed && value > 0) return `+${formatted}`;
@@ -33,8 +37,9 @@ export function formatPercent(
   { signed = true, digits = 2 }: { signed?: boolean; digits?: number } = {}
 ): string {
   if (!isNum(value)) return '—';
+  value = clean(value, digits);
   const sign = signed && value > 0 ? '+' : '';
-  return `${sign}${value.toFixed(digits)}%`;
+  return `${sign}${(value === 0 ? 0 : value).toFixed(digits)}%`;
 }
 
 export function formatNumber(value: number | null | undefined, digits = 2): string {
@@ -56,4 +61,4 @@ export function formatMarketCapMillions(millions: number | null | undefined): st
 
 export type Trend = 'up' | 'down' | 'flat';
 export const trendOf = (value: number | null | undefined): Trend =>
-  !isNum(value) || Math.abs(value) < 1e-9 ? 'flat' : value > 0 ? 'up' : 'down';
+  !isNum(value) || Math.abs(value) < 0.005 ? 'flat' : value > 0 ? 'up' : 'down';

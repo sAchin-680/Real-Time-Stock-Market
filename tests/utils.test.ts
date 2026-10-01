@@ -90,3 +90,12 @@ describe('validation', () => {
     expect(alertInputSchema.safeParse({ symbol: 'AAPL', company: 'Apple', name: 'x', condition: 'PRICE_ABOVE', threshold: -1 }).success).toBe(false);
   });
 });
+
+describe('format rounding', () => {
+  it('never renders negative zero', () => {
+    expect(formatCurrency(-0.000001)).toBe('$0.00');
+    expect(formatCurrency(-0.000001, { signed: true })).toBe('$0.00');
+    expect(formatPercent(-0.0001)).toBe('0.00%');
+    expect(trendOf(-0.001)).toBe('flat');
+  });
+});

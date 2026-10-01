@@ -1,15 +1,17 @@
 "use client";
 
+import { Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import InputField from "@/components/forms/InputField";
 import FooterLink from "@/components/forms/FooterLink";
+import DemoButton from "@/components/forms/DemoButton";
 import { signInWithEmail } from "@/lib/actions/auth.actions";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { EMAIL_PATTERN } from "@/lib/constants";
 
-const SignIn = () => {
+const SignInForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const {
@@ -45,6 +47,9 @@ const SignIn = () => {
   return (
     <>
       <h1 className="form-title">Welcome back</h1>
+      <div className="mb-6">
+        <DemoButton />
+      </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <InputField
@@ -89,4 +94,10 @@ const SignIn = () => {
     </>
   );
 };
+const SignIn = () => (
+  <Suspense>
+    <SignInForm />
+  </Suspense>
+);
+
 export default SignIn;

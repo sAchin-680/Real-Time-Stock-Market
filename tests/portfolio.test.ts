@@ -167,3 +167,21 @@ describe('realizedByMonth', () => {
     expect(rows[1]).toMatchObject({ trading: 100, dividends: 5, total: 105 });
   });
 });
+
+describe('applyLiveQuotes', () => {
+  it('matches summarizePortfolio for the same quotes', async () => {
+    const { applyLiveQuotes } = await import('@/lib/finance/live');
+    const ledger = buildLedger([
+      tx({ symbol: 'AAPL', side: 'BUY', quantity: 10, price: 100, executedAt: '2026-01-01' }),
+      tx({ symbol: 'MSFT', side: 'BUY', quantity: 5, price: 200, executedAt: '2026-01-01' }),
+    ]);
+    const before = summarizePortfolio(ledger, { AAPL: { price: 110, change: 1, changePercent: 0.9 } });
+    const fresh = { AAPL: { price: 120, change: 2, changePercent: 1.7 }, MSFT: { price: 210, change: -1, changePercent: -0.5 } };
+    const live = applyLiveQuotes(before.holdings, before.totals, fresh);
+    const server = summarizePortfolio(ledger, fresh);
+    expect(live.totals.marketValue).toBeCloseTo(server.totals.marketValue);
+    expect(live.totals.dayChange).toBeCloseTo(server.totals.dayChange);
+    expect(live.totals.unrealizedPnl).toBeCloseTo(server.totals.unrealizedPnl);
+    expect(live.holdings.find((h) => h.symbol === 'MSFT')!.stale).toBe(false);
+  });
+});
