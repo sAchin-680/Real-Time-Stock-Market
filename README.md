@@ -12,7 +12,7 @@ Live P&L streamed tick by tick, FIFO cost basis, holdings heatmap, P&L attributi
 ![MongoDB](https://img.shields.io/badge/MongoDB-7-47A248?logo=mongodb&logoColor=white)
 ![Tests](https://img.shields.io/badge/tests-vitest-6E9F18?logo=vitest&logoColor=white)
 
-**[Live demo →](https://real-time-stock-market-zeta.vercel.app)** &nbsp;·&nbsp; one click, no sign-up
+**[Live demo →](https://tickline-dash.vercel.app)** &nbsp;·&nbsp; one click, no sign-up
 
 <br />
 
