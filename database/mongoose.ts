@@ -1,12 +1,11 @@
 import mongoose from 'mongoose';
-
-const MONGODB_URI = process.env.MONGODB_URI;
+import { logger } from '@/lib/logger';
 
 declare global {
     var mongooseCache: {
         conn: typeof mongoose | null;
         promise: Promise<typeof mongoose> | null;
-    }
+    };
 }
 
 let cached = global.mongooseCache;
@@ -16,27 +15,37 @@ if (!cached) {
 }
 
 export const connectToDatabase = async () => {
-    // Early check for missing MONGODB_URI
-    if (!MONGODB_URI) throw new Error('MONGODB_URI must be set within .env');
+    const uri = process.env.MONGODB_URI;
+    if (!uri) throw new Error('MONGODB_URI must be set within .env');
 
     if (cached.conn) return cached.conn;
 
     if (!cached.promise) {
-        const options = {
+        cached.promise = mongoose.connect(uri, {
             bufferCommands: false,
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        };
-        cached.promise = mongoose.connect(MONGODB_URI);
+            maxPoolSize: 10,
+            serverSelectionTimeoutMS: 8_000,
+        });
+    }
 
     try {
         cached.conn = await cached.promise;
-        console.log(`Connected to database ${process.env.NODE_ENV}`);
+        logger.info('database.connected', { env: process.env.NODE_ENV });
     } catch (err) {
         cached.promise = null;
-        console.error("MongoDB connection error:", err);
+        logger.error('database.connection_failed', { error: err });
         throw err;
     }
 
     return cached.conn;
+};
+
+export const pingDatabase = async (): Promise<boolean> => {
+    try {
+        const conn = await connectToDatabase();
+        await conn.connection.db?.admin().ping();
+        return true;
+    } catch {
+        return false;
+    }
 };
