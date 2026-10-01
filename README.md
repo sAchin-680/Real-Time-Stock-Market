@@ -1,10 +1,10 @@
 <div align="center">
 
-<img src="public/assets/icons/logo.svg" alt="Signalist" height="44" />
+<img src="public/assets/icons/logo.svg" alt="Tickline" height="40" />
 
-### Real-time portfolio & market terminal
+### The real-time terminal for your portfolio
 
-Live P&L streamed tick by tick, FIFO cost basis, sector allocation, risk metrics, price alerts and market news, all in one dark trading-desk UI.
+Live P&L streamed tick by tick, FIFO cost basis, holdings heatmap, P&L attribution, risk metrics, price alerts and market news, in one institutional-grade terminal.
 
 [![CI](https://github.com/sAchin-680/Real-Time-Stock-Market/actions/workflows/ci.yml/badge.svg)](https://github.com/sAchin-680/Real-Time-Stock-Market/actions/workflows/ci.yml)
 ![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)
@@ -24,14 +24,15 @@ Live P&L streamed tick by tick, FIFO cost basis, sector allocation, risk metrics
 - **Real portfolio accounting.** FIFO lot matching, fees capitalised into cost basis, realized vs. unrealized P&L, dividends, and a ledger that refuses inconsistent history (you can't sell shares you never bought).
 - **Risk at a glance.** Value-weighted beta, Herfindahl concentration (HHI → "effective positions"), largest position and sector exposure.
 - **Alerts that actually fire.** Price and daily-move alerts are evaluated every 5 minutes during market hours by a background job, de-duplicated per trading day, and emailed.
-- **Built like a trading platform.** Ticker tape, ⌘K symbol search, keyboard navigation, market-session countdown, collapsible sidebar, and dense tabular numerics.
+- **Built like a trading terminal.** A command bar that takes tickers and mnemonics (`AAPL` ⏎, `PORT`, `WL`, `ALRT`), ticker tape, world clocks, market-session countdown, keyboard navigation and dense tabular numerics.
+- **Analytics, not just numbers.** Holdings heatmap (size = weight, colour = today's move), day-P&L attribution by position, and day performance against the S&P 500.
 - **Instant demo.** Every visitor gets a private sandbox account with a seeded portfolio. It's purged after 24 hours.
 
 ## Features
 
 | Area | What you get |
 | --- | --- |
-| **Dashboard** | Portfolio KPIs (value, today's P&L, unrealized, total return), live intraday value chart, top holdings, sector allocation, watchlist movers, closest alerts, personalized news, S&P 500 heatmap |
+| **Dashboard** | Net liquidation value, day P&L vs S&P 500, unrealized and total return · live intraday value chart · holdings heatmap · positions with sparklines · day-P&L attribution · sector exposure · watchlist movers · alerts near trigger · personalized news |
 | **Portfolio** | Sortable live holdings with weights and sparklines · buy / sell / dividend entry · CSV import (validated atomically) and export · filterable transaction history · monthly realized P&L chart · risk panel |
 | **Watchlist** | Live price, change, market cap, P/E, 52-week range position, inline alert creation, news for your symbols |
 | **Alerts** | Price above/below and day-move up/down conditions, once or daily, pause/resume, edit, trigger history, "check now" |
@@ -43,7 +44,7 @@ Live P&L streamed tick by tick, FIFO cost basis, sector allocation, risk metrics
 
 | Keys | Action |
 | --- | --- |
-| <kbd>⌘</kbd> <kbd>K</kbd> or <kbd>/</kbd> | Search symbols |
+| <kbd>⌘</kbd> <kbd>K</kbd> or <kbd>/</kbd> | Command bar: type a ticker (`AAPL` ⏎), a mnemonic (`PORT`, `WL`, `ALRT`, `MKT`, `DASH`) or `TRADE` / `HELP` |
 | <kbd>T</kbd> | New trade |
 | <kbd>G</kbd> then <kbd>D</kbd> / <kbd>P</kbd> / <kbd>W</kbd> / <kbd>A</kbd> / <kbd>M</kbd> | Go to Dashboard / Portfolio / Watchlist / Alerts / Markets |
 | <kbd>?</kbd> | Show all shortcuts |
@@ -100,7 +101,7 @@ flowchart LR
 
 ## Tech stack
 
-**Frontend:** Next.js 15 (App Router, RSC, Server Actions) · React 19 · TypeScript (strict) · Tailwind CSS 4 · Radix UI / shadcn · lucide icons · TradingView widgets
+**Frontend:** Next.js 15 (App Router, RSC, Server Actions) · React 19 · TypeScript (strict) · Tailwind CSS 4 · Radix UI / shadcn · IBM Plex · lucide icons · TradingView widgets
 **Backend:** Next.js route handlers and server actions · MongoDB + Mongoose · Better Auth (email/password, sessions) · Zod validation · Inngest · Nodemailer · Gemini
 **Market data:** Finnhub REST (quotes, profiles, fundamentals, news) and WebSocket (trades)
 **Quality and delivery:** Vitest with coverage gates · ESLint (zero warnings) · GitHub Actions (lint, typecheck, test, build, Docker) · Dependabot · Docker multi-stage image · Vercel
@@ -123,7 +124,7 @@ cp .env.example .env.local   # then fill in the values below
 npm run dev                  # http://localhost:3000
 ```
 
-Without `MONGODB_URI`, development falls back to `mongodb://127.0.0.1:27017/signalist`. Without a Finnhub key, the app still runs: positions are valued at cost and a notice explains how to enable live data.
+Without `MONGODB_URI`, development falls back to `mongodb://127.0.0.1:27017/tickline`. Without a Finnhub key, the app still runs: positions are valued at cost and a notice explains how to enable live data.
 
 To run the background jobs locally, start the Inngest dev server in a second terminal:
 
@@ -149,7 +150,7 @@ docker compose up --build    # app :3000 · MongoDB · Inngest dev server :8288
 | `INNGEST_EVENT_KEY` / `INNGEST_SIGNING_KEY` | production jobs | Added automatically by the Inngest Vercel integration |
 | `NODEMAILER_EMAIL` / `NODEMAILER_PASSWORD` | for emails | Gmail address and [app password](https://support.google.com/accounts/answer/185833) |
 | `GEMINI_API_KEY` | optional | Personalized welcome emails and daily digests |
-| `EMAIL_FROM_NAME` | optional | Sender name (default `Signalist`) |
+| `EMAIL_FROM_NAME` | optional | Sender name (default `Tickline`) |
 | `LOG_LEVEL` | optional | `debug` · `info` · `warn` · `error` |
 
 ## Scripts
@@ -199,11 +200,12 @@ app/
   (root)/              dashboard, portfolio, watchlist, alerts, markets, stocks/[symbol]
   api/                 health, quotes, stream (SSE), portfolio/export, inngest
 components/
-  finance/             holdings, charts, dialogs, alerts board, sparklines
-  layout/              sidebar, ticker tape, status bar, live indicator, shortcuts
+  brand/               Tickline logo and wordmark
+  finance/             workspace, heatmap, attribution, holdings, charts, dialogs, alerts
+  layout/              command bar, icon rail, ticker tape, clocks, status bar, shortcuts
   ui/                  Radix/shadcn primitives
 lib/
-  finance/             pure engines: portfolio (FIFO, P&L, risk), alerts, live re-marking
+  finance/             pure engines: portfolio (FIFO, P&L, risk), alerts, live re-marking, treemap
   server/              Finnhub client, stream hub, session helpers (server-only)
   client/              shared real-time market store
   services/            portfolio, alerts, news, users, demo (server-only)
@@ -217,7 +219,7 @@ tests/                 unit tests
 
 The project deploys to **Vercel** through its GitHub integration: pull requests get preview deployments and merges to `main` go to production. Set the environment variables above in *Project → Settings → Environment Variables* (mark secrets as **Sensitive**), install the **Inngest** integration for scheduled jobs, and allow Vercel to reach MongoDB (Atlas network access `0.0.0.0/0`).
 
-Any container platform works too: `docker build -t signalist .` produces a standalone, non-root image that serves on port 3000.
+Any container platform works too: `docker build -t tickline .` produces a standalone, non-root image that serves on port 3000.
 
 ---
 
