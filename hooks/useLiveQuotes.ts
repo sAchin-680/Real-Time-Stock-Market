@@ -1,64 +1,45 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import type { LiveQuote, QuotesResponse } from '@/lib/types';
-import type { MarketStatus } from '@/lib/market-hours';
+import { useEffect, useMemo, useSyncExternalStore } from 'react';
+import { marketStore } from '@/lib/client/market-store';
+import type { LiveQuote } from '@/lib/types';
 
-const OPEN_INTERVAL_MS = 15_000;
-const CLOSED_INTERVAL_MS = 120_000;
+const serverSnapshot = marketStore.getSnapshot();
 
 /**
- * Polls /api/quotes for the given symbols. Pauses while the tab is hidden and
- * slows down outside regular trading hours.
+ * Live quotes for `symbols`: streamed trades (SSE) on top of a REST baseline.
+ * All components share one connection via the market store.
  */
 export function useLiveQuotes(symbols: readonly string[], initial: Record<string, LiveQuote> = {}) {
-  const [quotes, setQuotes] = useState<Record<string, LiveQuote>>(initial);
-  const [market, setMarket] = useState<MarketStatus | null>(null);
-  const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
-  const [error, setError] = useState(false);
-  const key = [...new Set(symbols)].sort().join(',');
-  const marketOpen = useRef(true);
+  const key = useMemo(() => [...new Set(symbols)].sort().join(','), [symbols]);
 
-  const refresh = useCallback(async () => {
-    if (!key) return;
-    try {
-      const res = await fetch(`/api/quotes?symbols=${encodeURIComponent(key)}`, { cache: 'no-store' });
-      if (!res.ok) throw new Error(String(res.status));
-      const data = (await res.json()) as QuotesResponse;
-      setQuotes((prev) => ({ ...prev, ...data.quotes }));
-      setMarket(data.market);
-      marketOpen.current = data.market.isOpen;
-      setUpdatedAt(new Date(data.asOf));
-      setError(false);
-    } catch {
-      setError(true);
-    }
-  }, [key]);
+  useEffect(() => {
+    marketStore.seed(initial);
+    // Initial quotes only seed the store once per mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!key) return;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    let cancelled = false;
+    return marketStore.register(key.split(','));
+  }, [key]);
 
-    const tick = async () => {
-      if (document.visibilityState === 'visible') await refresh();
-      if (!cancelled) timer = setTimeout(tick, marketOpen.current ? OPEN_INTERVAL_MS : CLOSED_INTERVAL_MS);
-    };
-    const onVisible = () => {
-      if (document.visibilityState === 'visible') {
-        clearTimeout(timer);
-        tick();
-      }
-    };
+  const snap = useSyncExternalStore(marketStore.subscribe, marketStore.getSnapshot, () => serverSnapshot);
 
-    tick();
-    document.addEventListener('visibilitychange', onVisible);
-    return () => {
-      cancelled = true;
-      clearTimeout(timer);
-      document.removeEventListener('visibilitychange', onVisible);
-    };
-  }, [key, refresh]);
+  const quotes = useMemo(() => ({ ...initial, ...snap.quotes }), [initial, snap.quotes]);
 
-  return { quotes, market, updatedAt, error, refresh };
+  return {
+    quotes,
+    history: snap.history,
+    direction: snap.direction,
+    status: snap.status,
+    market: snap.market,
+    updatedAt: snap.lastUpdate ? new Date(snap.lastUpdate) : null,
+  };
+}
+
+/** Connection state only (for the LIVE indicator). */
+export function useStreamStatus() {
+  const snap = useSyncExternalStore(marketStore.subscribe, marketStore.getSnapshot, () => serverSnapshot);
+  return { status: snap.status, lastUpdate: snap.lastUpdate };
 }

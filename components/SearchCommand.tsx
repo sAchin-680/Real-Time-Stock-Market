@@ -6,6 +6,7 @@ import { Loader2, Search, TrendingUp } from "lucide-react";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import WatchlistButton from "@/components/WatchlistButton";
 import { searchStocks } from "@/lib/actions/finhub.actions";
+import { OPEN_SEARCH_EVENT } from "@/components/layout/KeyboardShortcuts";
 
 export default function SearchCommand({
   initialStocks,
@@ -32,8 +33,13 @@ export default function SearchCommand({
         setOpen((v) => !v);
       }
     };
+    const onOpen = () => setOpen(true);
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    window.addEventListener(OPEN_SEARCH_EVENT, onOpen);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener(OPEN_SEARCH_EVENT, onOpen);
+    };
   }, []);
 
   useEffect(() => {
