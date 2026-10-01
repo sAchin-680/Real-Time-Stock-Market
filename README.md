@@ -14,6 +14,10 @@ Live P&L streamed tick by tick, FIFO cost basis, holdings heatmap, P&L attributi
 
 **[Live demo →](https://real-time-stock-market-zeta.vercel.app)** &nbsp;·&nbsp; one click, no sign-up
 
+<br />
+
+<img src="docs/screenshots/dashboard.jpg" alt="Tickline dashboard: live KPIs, holdings heatmap, positions and day P&L attribution" width="100%" />
+
 </div>
 
 ---
@@ -27,6 +31,21 @@ Live P&L streamed tick by tick, FIFO cost basis, holdings heatmap, P&L attributi
 - **Built like a trading terminal.** A command bar that takes tickers and mnemonics (`AAPL` ⏎, `PORT`, `WL`, `ALRT`), ticker tape, world clocks, market-session countdown, keyboard navigation and dense tabular numerics.
 - **Analytics, not just numbers.** Holdings heatmap (size = weight, colour = today's move), day-P&L attribution by position, and day performance against the S&P 500.
 - **Instant demo.** Every visitor gets a private sandbox account with a seeded portfolio. It's purged after 24 hours.
+
+## Screenshots
+
+| Portfolio | Security page |
+| --- | --- |
+| <img src="docs/screenshots/portfolio.jpg" alt="Portfolio: live positions, allocation, risk and realized P&L" /> | <img src="docs/screenshots/stock.jpg" alt="Security page: live quote, position, key statistics and chart" /> |
+| **Watchlist** | **Alerts** |
+| <img src="docs/screenshots/watchlist.jpg" alt="Watchlist: live quotes, valuation, 52-week range and news" /> | <img src="docs/screenshots/alerts.jpg" alt="Alerts: price and day-move triggers" /> |
+
+<details>
+<summary>Sign-in landing</summary>
+
+<img src="docs/screenshots/sign-in.jpg" alt="Sign-in landing with one-click demo" />
+
+</details>
 
 ## Features
 
