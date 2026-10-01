@@ -11,6 +11,7 @@ import { addTransaction } from "@/lib/actions/portfolio.actions";
 import type { TransactionSide } from "@/lib/finance/portfolio";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { OPEN_TRADE_EVENT } from "@/components/layout/KeyboardShortcuts";
 
 const SIDES: { value: TransactionSide; label: string }[] = [
   { value: "BUY", label: "Buy" },
@@ -25,11 +26,14 @@ export default function TradeDialog({
   defaultPrice,
   defaultSide = "BUY",
   trigger,
+  listenForShortcut = false,
 }: {
   symbol?: string;
   defaultPrice?: number;
   defaultSide?: TransactionSide;
   trigger?: React.ReactNode;
+  /** Open when the global "T" shortcut fires (enable on exactly one instance). */
+  listenForShortcut?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -43,6 +47,13 @@ export default function TradeDialog({
     executedAt: today(),
     notes: "",
   });
+
+  useEffect(() => {
+    if (!listenForShortcut) return;
+    const onOpen = () => setOpen(true);
+    window.addEventListener(OPEN_TRADE_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_TRADE_EVENT, onOpen);
+  }, [listenForShortcut]);
 
   useEffect(() => {
     if (open) {
