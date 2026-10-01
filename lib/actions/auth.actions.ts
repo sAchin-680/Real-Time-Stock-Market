@@ -15,6 +15,16 @@ type AuthResult = { success: true } | { success: false; error: string };
 const authLimiter = createRateLimiter({ limit: 10, windowMs: 10 * 60 * 1000 });
 const demoLimiter = createRateLimiter({ limit: 5, windowMs: 60 * 60 * 1000 });
 
+/** Turns infrastructure failures (DB down, auth misconfigured) into an honest, user-safe message. */
+const describeInfraError = (e: unknown, fallback: string) => {
+    const name = (e as { name?: string })?.name ?? '';
+    const message = (e as { message?: string })?.message ?? '';
+    if (/Mongo|ENOTFOUND|ECONNREFUSED|querySrv|bad auth|Server selection/i.test(`${name} ${message}`)) {
+        return 'Tickline is temporarily unavailable (database connection). Please try again in a few minutes.';
+    }
+    return fallback;
+};
+
 const authErrorMessage = (e: unknown, fallback: string) =>
     e instanceof APIError && e.message ? e.message : fallback;
 
@@ -36,7 +46,7 @@ export const signUpWithEmail = async ({ email, password, fullName, country, inve
         await auth.api.signUpEmail({ body: { email, password, name: fullName.trim() } });
     } catch (e) {
         logger.warn('auth.sign_up_failed', { error: e });
-        return { success: false, error: authErrorMessage(e, 'Sign up failed. Please try again.') };
+        return { success: false, error: e instanceof APIError ? authErrorMessage(e, 'Sign up failed.') : describeInfraError(e, 'Sign up failed. Please try again.') };
     }
 
     try {
@@ -61,7 +71,7 @@ export const signInWithEmail = async ({ email, password }: SignInFormData): Prom
         return { success: true };
     } catch (e) {
         logger.info('auth.sign_in_failed', { reason: e instanceof APIError ? e.message : 'unknown' });
-        return { success: false, error: authErrorMessage(e, 'Invalid email or password') };
+        return { success: false, error: e instanceof APIError ? authErrorMessage(e, 'Invalid email or password') : describeInfraError(e, 'Sign in failed. Please try again.') };
     }
 }
 
@@ -79,7 +89,7 @@ export const signInAsDemo = async (): Promise<AuthResult> => {
         return { success: true };
     } catch (e) {
         logger.error('auth.demo_failed', { error: e });
-        return { success: false, error: 'Could not start the demo. Please try again.' };
+        return { success: false, error: describeInfraError(e, 'Could not start the demo. Please try again.') };
     }
 }
 
