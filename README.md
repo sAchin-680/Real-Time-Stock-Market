@@ -4,7 +4,7 @@
 
 ### The real-time terminal for your portfolio
 
-Live P&L streamed tick by tick, FIFO cost basis, holdings heatmap, P&L attribution, risk metrics, price alerts and market news, in one institutional-grade terminal.
+Live P&L streamed tick by tick, FIFO cost basis, holdings heatmap, P&L attribution, risk metrics, price alerts and market news, in one terminal.
 
 [![CI](https://github.com/sAchin-680/Real-Time-Stock-Market/actions/workflows/ci.yml/badge.svg)](https://github.com/sAchin-680/Real-Time-Stock-Market/actions/workflows/ci.yml)
 ![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)
@@ -31,6 +31,19 @@ Live P&L streamed tick by tick, FIFO cost basis, holdings heatmap, P&L attributi
 - **Built like a trading terminal.** A command bar that takes tickers and mnemonics (`AAPL` ⏎, `PORT`, `WL`, `ALRT`), ticker tape, world clocks, market-session countdown, keyboard navigation and dense tabular numerics.
 - **Analytics, not just numbers.** Holdings heatmap (size = weight, colour = today's move), day-P&L attribution by position, and day performance against the S&P 500.
 - **Instant demo.** Every visitor gets a private sandbox account with a seeded portfolio. It's purged after 24 hours.
+
+## Measured
+
+| What | Result |
+| --- | --- |
+| **Stream latency**: trade reaches the server → browser receives it | **p50 25 ms · p95 48 ms · p99 50 ms** at 1,000 concurrent streams ([load test](loadtest/RESULTS.md)) |
+| **Streams sharing one upstream connection** | **8,000** held with 0 dropped; first strain at ~8,000 per process (99.2 % delivered, p99 63 ms) |
+| **Memory at 1,000 streams** | Next.js app 335 MB · standalone relay **85 MB** |
+| **Serverless time limit** | Streams rotate make-before-break 5 s before the cut-off, so the limit causes no price gap (by design; [details](docs/streaming.md)) |
+| **Tests** | 65 unit tests; CI enforces coverage ≥ 85 % lines (93 % statements) |
+| **Availability target** | 99.5 % of external health checks pass ([SLO and runbook](docs/operations.md)) |
+
+Measured with k6 + xk6-sse on one machine against a single Node process and a synthetic 20 trades/s feed. The method, raw results and how to reproduce them are in [loadtest/](loadtest/).
 
 ## Screenshots
 
@@ -106,6 +119,7 @@ flowchart LR
 2. `/api/stream` subscribes those symbols on a **single shared upstream WebSocket** per server instance. Subscriptions are reference counted, trade bursts are coalesced per symbol and flushed every 250 ms, and the upstream reconnects with exponential backoff.
 3. Streamed prices are re-based on the previous close from the REST quote, so day change and P&L stay correct. If streaming is unavailable, the store falls back to polling (15 s when open, 2 min when closed) and the indicator switches from **Live** to **Delayed**.
 4. Client-side re-marking (`lib/finance/live.ts`) is tested for parity with the server engine, so live numbers always match a page refresh.
+5. **Serverless limits.** On Vercel a stream can't outlive the function, and the shared hub is per instance. Streams announce their cut-off and the browser switches to a replacement before the old one closes, so there's no gap. For scale, a standalone relay (`relay/`, Docker + Fly.io) holds one upstream socket for every user, authenticated with short-lived signed tokens. See [docs/streaming.md](docs/streaming.md).
 
 ### Portfolio engine
 
@@ -125,7 +139,8 @@ flowchart LR
 **Frontend:** Next.js 15 (App Router, RSC, Server Actions) · React 19 · TypeScript (strict) · Tailwind CSS 4 · Radix UI / shadcn · IBM Plex · lucide icons · TradingView widgets
 **Backend:** Next.js route handlers and server actions · MongoDB + Mongoose · Better Auth (email/password, sessions) · Zod validation · Inngest · Nodemailer · Gemini
 **Market data:** Finnhub REST (quotes, profiles, fundamentals, news) and WebSocket (trades)
-**Quality and delivery:** Vitest with coverage gates · ESLint (zero warnings) · GitHub Actions (lint, typecheck, test, build, Docker) · Dependabot · Docker multi-stage image · Vercel
+**Observability:** OpenTelemetry (`@vercel/otel`, OTLP → Grafana) · token-gated metrics endpoint · external uptime probe and SLO
+**Quality and delivery:** Vitest with coverage gates · k6 load tests · ESLint (zero warnings) · GitHub Actions (lint, typecheck, test, build, Docker) · Dependabot · Docker multi-stage image · Vercel
 
 ## Getting started
 
