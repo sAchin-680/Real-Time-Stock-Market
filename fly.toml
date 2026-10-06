@@ -1,0 +1,34 @@
+# Fly.io config for the Tickline stream relay (one long-running process per region).
+#   fly launch --no-deploy --copy-config
+#   fly secrets set STREAM_TOKEN_SECRET=… FINNHUB_API_KEY=… ALLOWED_ORIGINS=https://tickline-dash.vercel.app
+#   fly deploy
+app = "tickline-relay"
+primary_region = "iad"
+
+[build]
+  dockerfile = "relay/Dockerfile"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  # Streams are long-lived: keep a machine running instead of scaling to zero.
+  auto_stop_machines = "off"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [http_service.concurrency]
+    type = "connections"
+    # Sized from loadtest/RESULTS.md (one instance holds well beyond this comfortably).
+    soft_limit = 1500
+    hard_limit = 2000
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "15s"
+    method = "GET"
+    path = "/healthz"
+    timeout = "3s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

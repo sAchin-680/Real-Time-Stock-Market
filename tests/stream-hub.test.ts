@@ -119,7 +119,7 @@ describe('createSseStream', () => {
     const dec = new TextDecoder();
     const read = async () => dec.decode((await reader.read()).value);
 
-    expect(await read()).toBe('retry: 2000\n\n');
+    expect(await read()).toBe('retry: 1000\n\n');
     expect(await read()).toContain('"p":100');
     src.trades([{ s: 'AAPL', p: 101 }]);
     src.trades([{ s: 'AAPL', p: 102 }]);
@@ -130,6 +130,20 @@ describe('createSseStream', () => {
     ctrl.abort();
     expect(hub.stats().subscribers).toBe(0);
     expect((await reader.read()).done).toBe(true);
+  });
+
+  it('announces rotation before its lifetime ends, then closes', async () => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'setTimeout', 'clearTimeout', 'Date'] });
+    const src = new FakeSource();
+    const hub = new StreamHub(src);
+    const reader = createSseStream(hub, ['AAPL'], { lifetimeMs: 10_000, rotateBeforeMs: 3_000, heartbeatMs: 60_000 }).getReader();
+    const dec = new TextDecoder();
+    await reader.read(); // retry
+    vi.advanceTimersByTime(7_000);
+    expect(dec.decode((await reader.read()).value)).toBe('event: rotate\ndata: {}\n\n');
+    vi.advanceTimersByTime(3_000);
+    expect((await reader.read()).done).toBe(true);
+    expect(hub.stats().subscribers).toBe(0);
   });
 
   it('parses and caps symbols', () => {

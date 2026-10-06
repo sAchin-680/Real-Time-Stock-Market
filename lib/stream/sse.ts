@@ -7,6 +7,11 @@ export interface SseStreamOptions {
   heartbeatMs?: number;
   /** Close the stream after this long; EventSource reconnects automatically (`retry`). */
   lifetimeMs?: number;
+  /**
+   * Send a `rotate` event this long before the lifetime ends so the client can
+   * open a replacement stream first and switch over with no gap ("make before break").
+   */
+  rotateBeforeMs?: number;
   retryMs?: number;
   signal?: AbortSignal;
 }
@@ -26,10 +31,10 @@ export function parseSymbols(raw: string | null, max = 50): string[] {
 
 /**
  * Server-Sent Events body for a hub subscription.
- * Events: `ticks` (JSON array of Tick), `: ping` heartbeat comments.
+ * Events: `ticks` (JSON array of Tick), `rotate` (open a replacement now), `: ping` heartbeats.
  */
 export function createSseStream(hub: StreamHub, symbols: string[], opts: SseStreamOptions = {}): ReadableStream<Uint8Array> {
-  const { flushMs = 250, heartbeatMs = 15_000, lifetimeMs = 280_000, retryMs = 2000, signal } = opts;
+  const { flushMs = 250, heartbeatMs = 15_000, lifetimeMs = 280_000, rotateBeforeMs = 5_000, retryMs = 1000, signal } = opts;
   const encoder = new TextEncoder();
   let cleanup = () => {};
 
@@ -60,6 +65,7 @@ export function createSseStream(hub: StreamHub, symbols: string[], opts: SseStre
       };
       const flushTimer = setInterval(flush, flushMs);
       const heartbeat = setInterval(() => write(`: ping\n\n`), heartbeatMs);
+      const rotate = setTimeout(() => write(`event: rotate\ndata: {}\n\n`), Math.max(0, lifetimeMs - rotateBeforeMs));
       const lifetime = setTimeout(() => cleanup(), lifetimeMs);
 
       cleanup = () => {
@@ -67,6 +73,7 @@ export function createSseStream(hub: StreamHub, symbols: string[], opts: SseStre
         closed = true;
         clearInterval(flushTimer);
         clearInterval(heartbeat);
+        clearTimeout(rotate);
         clearTimeout(lifetime);
         unsubscribe();
         try {
