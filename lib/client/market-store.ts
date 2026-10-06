@@ -23,6 +23,12 @@ const POLL_CLOSED_MS = 120_000;
 const POLL_STREAMING_MS = 60_000; // baseline refresh only; prices come from the stream
 const RESUBSCRIBE_DEBOUNCE_MS = 300;
 
+interface StreamEndpoint {
+  url: string;
+  token?: string;
+  expiresAt?: number;
+}
+
 /** Crypto/forex pairs ("BINANCE:BTCUSDT") stream 24/7 but have no REST quote baseline. */
 export const isStreamOnly = (symbol: string) => symbol.includes(':');
 
@@ -38,6 +44,8 @@ class MarketStore {
   private lastDirection: Record<string, 1 | -1 | 0> = {};
   private listeners = new Set<() => void>();
   private source: EventSource | null = null;
+  private endpoint: StreamEndpoint | null = null;
+  private generation = 0;
   private streamKey = '';
   private resubTimer: ReturnType<typeof setTimeout> | null = null;
   private pollTimer: ReturnType<typeof setTimeout> | null = null;
@@ -150,42 +158,81 @@ class MarketStore {
 
     if (key !== this.streamKey) {
       this.streamKey = key;
-      this.openStream(symbols);
+      void this.openStream(symbols);
       void this.poll(); // fetch baselines for any new symbols right away
     }
     if (!this.pollTimer) this.schedulePoll();
   }
 
-  private openStream(symbols: string[]) {
-    this.closeStream();
+  /** Resolves the stream endpoint (in-app route, or relay + signed token), cached until near expiry. */
+  private async getEndpoint(): Promise<StreamEndpoint> {
+    if (this.endpoint && (!this.endpoint.expiresAt || this.endpoint.expiresAt - Date.now() > 60_000)) return this.endpoint;
+    try {
+      const res = await fetch('/api/stream/token', { cache: 'no-store' });
+      this.endpoint = res.ok ? ((await res.json()) as StreamEndpoint) : { url: '/api/stream' };
+    } catch {
+      this.endpoint = { url: '/api/stream' };
+    }
+    return this.endpoint;
+  }
+
+  private async openStream(symbols: string[], { handoff = false } = {}) {
+    if (!handoff) this.closeStream();
     if (this.streamUnavailable || typeof EventSource === 'undefined') {
       this.status = 'polling';
       this.emit();
       return;
     }
 
-    this.status = 'connecting';
-    this.emit();
-    const es = new EventSource(`/api/stream?symbols=${encodeURIComponent(symbols.join(','))}`);
-    this.source = es;
+    const gen = ++this.generation;
+    if (!handoff) {
+      this.status = 'connecting';
+      this.emit();
+    }
+    const ep = await this.getEndpoint();
+    if (gen !== this.generation) return; // superseded while resolving the endpoint
 
-    es.addEventListener('ticks', (e) => {
+    const params = new URLSearchParams({ symbols: symbols.join(',') });
+    if (ep.token) params.set('token', ep.token);
+    const es = new EventSource(`${ep.url}?${params}`);
+    const previous = handoff ? this.source : null;
+    if (!handoff) this.source = es;
+
+    const onTicks = (e: Event) => {
       try {
         this.applyTicks(JSON.parse((e as MessageEvent).data));
       } catch {}
+    };
+    es.addEventListener('snapshot', onTicks);
+    es.addEventListener('ticks', onTicks);
+    // Make-before-break: the server announces its cut-off; open the replacement first.
+    es.addEventListener('rotate', () => {
+      if (this.source === es) void this.openStream(symbols, { handoff: true });
     });
     es.onopen = () => {
+      if (previous) {
+        if (gen !== this.generation) return es.close();
+        this.source = es;
+        previous.close();
+      }
       if (this.status !== 'live') {
         this.status = 'live';
         this.emit();
       }
     };
     es.onerror = () => {
-      // CLOSED means the server refused (e.g. 503 with no API key): stop retrying, keep polling.
+      if (this.source !== es) return; // a replaced or pending handoff stream
       if (es.readyState === EventSource.CLOSED) {
-        this.streamUnavailable = true;
-        this.source = null;
-        this.status = 'polling';
+        // Refused (e.g. 503 without an API key, or an expired relay token).
+        if (this.endpoint?.token) {
+          this.endpoint = null; // fetch a fresh token and try again
+          setTimeout(() => this.source === es && void this.openStream(symbols), 2_000);
+          this.status = 'connecting';
+        } else {
+          this.streamUnavailable = true;
+          this.source = null;
+          this.status = 'polling';
+        }
       } else {
         this.status = 'connecting';
       }
@@ -194,6 +241,7 @@ class MarketStore {
   }
 
   private closeStream() {
+    this.generation++;
     this.source?.close();
     this.source = null;
   }

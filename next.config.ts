@@ -2,6 +2,15 @@ import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV !== "production";
 
+// Optional standalone stream relay (see relay/ and docs/streaming.md).
+const relayOrigin = (() => {
+  try {
+    return process.env.STREAM_RELAY_URL ? new URL(process.env.STREAM_RELAY_URL).origin : "";
+  } catch {
+    return "";
+  }
+})();
+
 // TradingView widgets load a script from s3.tradingview.com which then renders iframes.
 const csp = [
   "default-src 'self'",
@@ -9,7 +18,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.tradingview.com https://*.tradingview-widget.com",
+  `connect-src 'self' https://*.tradingview.com https://*.tradingview-widget.com ${relayOrigin}`,
   "frame-src https://*.tradingview.com https://*.tradingview-widget.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
