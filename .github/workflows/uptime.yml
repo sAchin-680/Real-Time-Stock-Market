@@ -1,0 +1,40 @@
+name: Uptime
+
+# External probe of the production health endpoint. A failing run triggers
+# GitHub's failure notification; the run history doubles as an uptime log.
+# The SLO and status-page setup are in docs/operations.md.
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: uptime
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Probe /api/health
+        env:
+          URL: https://tickline-dash.vercel.app/api/health
+        run: |
+          for attempt in 1 2 3; do
+            code=$(curl -sS -o body.json -w '%{http_code}' --max-time 15 "$URL" || echo 000)
+            ms=$(curl -sS -o /dev/null -w '%{time_total}' --max-time 15 "$URL" || echo 0)
+            echo "attempt $attempt: HTTP $code in ${ms}s"
+            if [ "$code" = "200" ] && grep -q '"status":"ok"' body.json; then
+              echo "### ✅ Healthy (HTTP $code, ${ms}s)" >> "$GITHUB_STEP_SUMMARY"
+              cat body.json >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "### ❌ Unhealthy (HTTP $code)" >> "$GITHUB_STEP_SUMMARY"
+          cat body.json >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+          exit 1
