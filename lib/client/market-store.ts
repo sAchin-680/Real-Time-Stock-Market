@@ -198,11 +198,13 @@ class MarketStore {
     const previous = handoff ? this.source : null;
     if (!handoff) this.source = es;
 
-    es.addEventListener('ticks', (e) => {
+    const onTicks = (e: Event) => {
       try {
         this.applyTicks(JSON.parse((e as MessageEvent).data));
       } catch {}
-    });
+    };
+    es.addEventListener('snapshot', onTicks);
+    es.addEventListener('ticks', onTicks);
     // Make-before-break: the server announces its cut-off; open the replacement first.
     es.addEventListener('rotate', () => {
       if (this.source === es) void this.openStream(symbols, { handoff: true });

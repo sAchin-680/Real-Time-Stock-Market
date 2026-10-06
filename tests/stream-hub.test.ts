@@ -120,7 +120,9 @@ describe('createSseStream', () => {
     const read = async () => dec.decode((await reader.read()).value);
 
     expect(await read()).toBe('retry: 1000\n\n');
-    expect(await read()).toContain('"p":100');
+    const snap = await read();
+    expect(snap).toMatch(/^event: snapshot\n/);
+    expect(snap).toContain('"p":100');
     src.trades([{ s: 'AAPL', p: 101 }]);
     src.trades([{ s: 'AAPL', p: 102 }]);
     vi.advanceTimersByTime(100);
@@ -130,6 +132,28 @@ describe('createSseStream', () => {
     ctrl.abort();
     expect(hub.stats().subscribers).toBe(0);
     expect((await reader.read()).done).toBe(true);
+  });
+
+  it('skips flushes while a slow client is behind, then catches up with the newest price', async () => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'setTimeout', 'clearTimeout', 'Date'] });
+    const src = new FakeSource();
+    const hub = new StreamHub(src);
+    const stream = createSseStream(hub, ['AAPL'], { flushMs: 100, heartbeatMs: 60_000 });
+    const reader = stream.getReader();
+    await reader.read(); // retry
+    src.open();
+    // Don't read: fill the client queue (high-water mark 16) with 30 flushes.
+    for (let i = 1; i <= 30; i++) {
+      src.trades([{ s: 'AAPL', p: i }]);
+      vi.advanceTimersByTime(100);
+    }
+    const dec = new TextDecoder();
+    const chunks: string[] = [];
+    for (let i = 0; i < 16; i++) chunks.push(dec.decode((await reader.read()).value));
+    expect(chunks.every((c) => c.startsWith('event: ticks'))).toBe(true); // queue capped at 16, not 30
+    vi.advanceTimersByTime(100); // space freed → next flush delivers the newest price
+    expect(dec.decode((await reader.read()).value)).toContain('"p":30');
+    await reader.cancel();
   });
 
   it('announces rotation before its lifetime ends, then closes', async () => {

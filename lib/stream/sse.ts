@@ -31,14 +31,21 @@ export function parseSymbols(raw: string | null, max = 50): string[] {
 
 /**
  * Server-Sent Events body for a hub subscription.
- * Events: `ticks` (JSON array of Tick), `rotate` (open a replacement now), `: ping` heartbeats.
+ * Events: `snapshot` (last known price per symbol, sent once on connect), `ticks`
+ * (JSON array of live Tick), `rotate` (open a replacement now), `: ping` heartbeats.
+ *
+ * Backpressure: writes are queued per client (high-water mark 16 chunks). If a
+ * slow client's queue is full the flush is skipped; because pending ticks are
+ * coalesced to the newest price per symbol, the next flush catches it up with no
+ * loss of current state and no unbounded memory growth.
  */
 export function createSseStream(hub: StreamHub, symbols: string[], opts: SseStreamOptions = {}): ReadableStream<Uint8Array> {
   const { flushMs = 250, heartbeatMs = 15_000, lifetimeMs = 280_000, rotateBeforeMs = 5_000, retryMs = 1000, signal } = opts;
   const encoder = new TextEncoder();
   let cleanup = () => {};
 
-  return new ReadableStream<Uint8Array>({
+  return new ReadableStream<Uint8Array>(
+    {
     start(controller) {
       let closed = false;
       const pending = new Map<string, Tick>();
@@ -53,13 +60,14 @@ export function createSseStream(hub: StreamHub, symbols: string[], opts: SseStre
 
       write(`retry: ${retryMs}\n\n`);
       const initial = hub.snapshot(symbols);
-      if (initial.length) write(`event: ticks\ndata: ${JSON.stringify(initial)}\n\n`);
+      if (initial.length) write(`event: snapshot\ndata: ${JSON.stringify(initial)}\n\n`);
 
       const unsubscribe = hub.subscribe(symbols, (ticks) => {
         for (const t of ticks) pending.set(t.s, t);
       });
       const flush = () => {
         if (!pending.size) return;
+        if ((controller.desiredSize ?? 1) <= 0) return; // client is behind: keep coalescing
         write(`event: ticks\ndata: ${JSON.stringify([...pending.values()])}\n\n`);
         pending.clear();
       };
@@ -85,7 +93,9 @@ export function createSseStream(hub: StreamHub, symbols: string[], opts: SseStre
     cancel() {
       cleanup();
     },
-  });
+    },
+    new CountQueuingStrategy({ highWaterMark: 16 })
+  );
 }
 
 export const SSE_HEADERS = {
