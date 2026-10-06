@@ -4,6 +4,7 @@ import { connectToDatabase } from '@/database/mongoose';
 import { PriceAlert, type AlertDoc } from '@/database/models/alert.model';
 import { canAlertFire, isAlertTriggered } from '@/lib/finance/alerts';
 import { logger } from '@/lib/logger';
+import { withSpan } from '@/lib/telemetry';
 import { getMarketStatus } from '@/lib/market-hours';
 import { getQuotes } from '@/lib/server/finnhub';
 import type { AlertDTO } from '@/lib/types';
@@ -65,7 +66,15 @@ export const toAlertDTO = (a: LeanAlert, quote?: { price: number; changePercent:
  * Each update is conditional on the alert's previous trigger state, so two
  * concurrent runs can never fire the same alert twice.
  */
-export async function evaluateAlerts({ userId, now = new Date() }: { userId?: string; now?: Date } = {}): Promise<FiredAlert[]> {
+export function evaluateAlerts(opts: { userId?: string; now?: Date } = {}): Promise<FiredAlert[]> {
+  return withSpan('alerts.evaluate', { 'alerts.scope': opts.userId ? 'user' : 'all' }, async (span) => {
+    const fired = await evaluateAlertsInner(opts);
+    span.setAttribute('alerts.fired', fired.length);
+    return fired;
+  });
+}
+
+async function evaluateAlertsInner({ userId, now = new Date() }: { userId?: string; now?: Date }): Promise<FiredAlert[]> {
   await connectToDatabase();
 
   const filter: Record<string, unknown> = { active: true };

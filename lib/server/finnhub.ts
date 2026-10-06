@@ -3,6 +3,7 @@ import 'server-only';
 import { TTLCache, mapWithConcurrency } from '@/lib/cache';
 import { getFinnhubToken } from '@/lib/env';
 import { logger } from '@/lib/logger';
+import { withSpan } from '@/lib/telemetry';
 
 const BASE_URL = 'https://finnhub.io/api/v1';
 const REQUEST_TIMEOUT_MS = 8_000;
@@ -82,27 +83,31 @@ async function request<T>(path: string, params: Record<string, string>, revalida
     ? { next: { revalidate: revalidateSeconds } }
     : { cache: 'no-store' };
 
-  for (let attempt = 0; attempt < 3; attempt++) {
-    let res: Response;
-    try {
-      res = await fetch(url, { ...init, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
-    } catch (err) {
-      if (attempt === 2) throw new FinnhubError(`Network error calling ${path}: ${(err as Error).message}`);
-      await sleep(250 * 2 ** attempt);
-      continue;
-    }
+  // The URL carries the API token, so the span records only the route.
+  return withSpan(`finnhub ${path}`, { 'finnhub.route': path, 'finnhub.revalidate_s': revalidateSeconds ?? 0 }, async (span) => {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      span.setAttribute('finnhub.attempts', attempt + 1);
+      let res: Response;
+      try {
+        res = await fetch(url, { ...init, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+      } catch (err) {
+        if (attempt === 2) throw new FinnhubError(`Network error calling ${path}: ${(err as Error).message}`);
+        await sleep(250 * 2 ** attempt);
+        continue;
+      }
 
-    if (res.ok) return (await res.json()) as T;
+      span.setAttribute('http.response.status_code', res.status);
+      if (res.ok) return (await res.json()) as T;
 
-    const retryable = res.status === 429 || res.status >= 500;
-    if (!retryable || attempt === 2) {
-      // Never include the URL: it carries the API token.
-      throw new FinnhubError(`Finnhub ${path} failed with ${res.status}`, res.status);
+      const retryable = res.status === 429 || res.status >= 500;
+      if (!retryable || attempt === 2) {
+        throw new FinnhubError(`Finnhub ${path} failed with ${res.status}`, res.status);
+      }
+      const retryAfter = Number(res.headers.get('retry-after'));
+      await sleep(Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : 400 * 2 ** attempt);
     }
-    const retryAfter = Number(res.headers.get('retry-after'));
-    await sleep(Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : 400 * 2 ** attempt);
-  }
-  throw new FinnhubError(`Finnhub ${path} failed`);
+    throw new FinnhubError(`Finnhub ${path} failed`);
+  });
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
